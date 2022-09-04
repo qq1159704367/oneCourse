@@ -97,8 +97,7 @@
                 </div>
             </div>
             <div style="height: 100%;background-color: #80808010;
-                 width: 100%;display: flex;flex-direction: column;"
-                class="page">
+                 width: 100%;display: flex;flex-direction: column;" class="page">
                 <div style="display: flex;flex-direction: row;justify-content: center;">
                     <img src="./img7.png" style="object-fit: contain;margin: 100px 10px 0 10px;
                                                                     height: 900px;flex-shrink: 0;" />
@@ -110,7 +109,7 @@
                     <div class="main m" style="font-size: 70px;">丰富的鸿蒙卡片加持</div>
                     <div class="detail m">8大种类，15张卡片让你玩个够</div>
                 </div>
-                
+
             </div>
             <div style="height: 100%;background-color: #80808010;
                         width: 100%;display: flex;flex-direction: row;" class="page">
@@ -134,10 +133,12 @@
             </div>
         </div>
     </div>
-        <div style="flex-shrink: 0;left:0;bottom:0;text-align:center;
+    <div style="flex-shrink: 0;left:0;bottom:0;text-align:center;
     padding:8px;background-color:#ffffff;color:#000000;width: 100%;
     z-index: 100;user-select: none;">
-        <a href="https://beian.miit.gov.cn">粤ICP备2022105748号</a></div>
+        <a href="https://beian.miit.gov.cn" style="color: #000000;text-decoration: none;">
+            粤ICP备2022105748号</a>
+    </div>
 </body>
 
 <style>
@@ -164,6 +165,7 @@
         font-weight: 300;
         flex-shrink: 0;
     }
+
     h2 {
         font-size: 14px;
         letter-spacing: 2px;
@@ -294,15 +296,15 @@
 
     var sY;
     var eY;
-    window.ontouchstart = function(e){
+    window.ontouchstart = function (e) {
         sY = e.touches[0].pageY
     }
-    window.ontouchmove = function(e){
+    window.ontouchmove = function (e) {
         eY = e.touches[0].pageY
     }
-    window.ontouchend = function(e){
+    window.ontouchend = function (e) {
         console.log(sY, eY)
-        scroll({deltaY: sY - eY})
+        scroll({ deltaY: sY - eY })
     }
 </script>
 
