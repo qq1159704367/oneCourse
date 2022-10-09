@@ -6,34 +6,51 @@
     <title>一课表运动表助手</title>
 </head>
 
-<body style="background-color: #89daff;padding: 0;overflow: hidden;display: flex;
+<body style="background: linear-gradient(30deg, #00aeff, #5ce7ff);padding: 0;overflow: hidden;display: flex;
     flex-direction: column;background-color: #202020;">
+
+    <img src="./watch.png" class="watch" />
+
+    <div class="bubble"></div>
+
     <div style="height: 80px;background-color: #5763689c;display: flex;flex-direction: row;align-items: center;
-        padding:0 20px;flex-shrink: 0;backdrop-filter: blur(10px);">
-        <img style="height: 70px;width: 70px;border: none;outline: none;flex-shrink: 0;
-        box-sizing: border-box;padding: 8px;" src="./iconA.png" />
+        padding:20px 30px;flex-shrink: 0;backdrop-filter: blur(20px);">
+        <img style="height: 100px;width: 100px;border: none;outline: none;flex-shrink: 0;
+        box-sizing: border-box;padding: 20px;" src="./iconA.png" />
         <div style="width: 1px;height: 40px;background-color: white;margin-right: 10px;
         opacity: 0.5;flex-shrink: 0;"></div>
-        <h1>一课表运动表助手</h1>
+        <div style="color: white; font-size: 36px;letter-spacing: 4px;">一课表运动表助手</div>
         <div style="flex-grow: 1;"></div>
     </div>
 
     <div style="width: 100%;flex-grow: 1;display: flex;justify-content: center;align-items: center;
-    flex-direction: column;">
-        <text style="font-size: 40px;color: white;letter-spacing: 4px;">一课表运动表助手</text>
-        <text style="font-size: 12px;color: white;">v1.0.9</text>
-        <div style="height: 20px;"></div>
+    flex-direction: column;z-index: 1;">
+        <div style="flex-direction: column;display: flex;align-items: center;
+        height: 300px;flex-shrink: 0;">
+            <text style="font-size: 80px;color: white;letter-spacing: 4px;
+            font-weight: bold;text-shadow: 10px 10px 50px #00000080;">一课表运动表助手</text>
+            <text style="font-size: 50px;color: white;
+            text-shadow: 6px 6px 20px #00000080;margin-bottom: 16px;">v1.0.9</text>
+        </div>
 
         <button onclick="window.location.href='./gthelper.apk'"
-            style="padding: 20px 40px;box-sizing: border-box;">点击下载</button>
+            style="padding: 30px 40px;box-sizing: border-box;
+            width: 60%;font-size: 30px;border-radius: 100px;">点击下载</button>
+
+            <div style="flex-shrink: 0;height: 300px;">
+
+            </div>
     </div>
 
     <div style="flex-shrink: 0;left:0;bottom:0;text-align:center;
-            padding:8px;background-color:#101010;color:#ffffff;width: 100%;
-            z-index: 100;user-select: none;">
-        <a href="https://beian.miit.gov.cn" style="color: #ffffff;text-decoration: none;">
+            padding:8px;background-color:#ffffff80;color:#ffffff;width: 100%;
+            z-index: 100;user-select: none;backdrop-filter: blur(20px);">
+        <a href="https://beian.miit.gov.cn" style="color: black;text-decoration: none;
+        font-size: 30px;">
             粤ICP备2022105748号</a>
     </div>
+
+    
 
     <style>
         html,
@@ -42,6 +59,7 @@
             width: 100%;
             padding: 0;
             margin: 0;
+            overflow: hidden;
         }
 
         .r {
@@ -75,12 +93,15 @@
             border: none;
             margin: 0 5px;
             padding: 5px 20px;
-            background-color: #0066ff;
+            background-color: #217affa0;
+            backdrop-filter: blur(20px);
             color: white;
             letter-spacing: 2px;
             font-size: 13px;
             transition-duration: 300ms;
             transition-timing-function: ease-in-out;
+            user-select: none;
+            box-shadow: 4px 4px 16px 0 #0066ffa0;
         }
 
         button:hover {
@@ -124,6 +145,38 @@
 
         .now {
             box-shadow: 0 0 1px 3px goldenrod;
+        }
+
+        .watch {
+            width: 600px;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            opacity: 0.95;
+            animation: moving 3s ease-in-out infinite;
+        }
+
+        .bubble{
+            width: 800px;
+            aspect-ratio: 1;
+            border-radius: 500px;
+            position: absolute;
+            left: -100px;
+            top: -50px;
+            box-shadow: 0 0 60px 0 #1df0ffa4;
+            background: radial-gradient(farthest-corner at 20% 20%, rgb(35, 248, 255) 0, rgb(24, 216, 255) 100%);
+        }
+
+        @keyframes moving {
+            0%{
+                transform: translateY(0) translate(-30%,-30%) rotateZ(20deg);;
+            }
+            50%{
+                transform: translateY(-80px) translate(-30%,-30%) rotateZ(20deg);;
+            }
+            100%{
+                transform: translateY(0) translate(-30%,-30%) rotateZ(20deg);;
+            }
         }
     </style>
     <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.js"></script>
