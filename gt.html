@@ -9,9 +9,10 @@
 <body style="background: linear-gradient(30deg, #00aeff, #5ce7ff);padding: 0;overflow: hidden;display: flex;
     flex-direction: column;background-color: #202020;">
 
-    <img src="./watch.png" class="watch" />
-
     <div class="bubble"></div>
+
+    <img src="./watch.webp" class="watch" />
+    
 
     <div style="height: 80px;background-color: #5763689c;display: flex;flex-direction: row;align-items: center;
         padding:20px 30px;flex-shrink: 0;backdrop-filter: blur(20px);">
@@ -33,9 +34,9 @@
             text-shadow: 6px 6px 20px #00000080;margin-bottom: 16px;">v1.0.9</text>
         </div>
 
-        <button onclick="window.location.href='./gthelper.apk'"
+        <div class="btn" onclick="window.location.href='./gthelper.apk'"
             style="padding: 30px 40px;box-sizing: border-box;
-            width: 60%;font-size: 30px;border-radius: 100px;">点击下载</button>
+            width: 60%;font-size: 30px;border-radius: 100px;">点击下载</div>
 
             <div style="flex-shrink: 0;height: 300px;">
 
@@ -87,7 +88,7 @@
             margin: 0 5px;
         }
 
-        button {
+        .btn {
             border-radius: 40px;
             outline: none;
             border: none;
@@ -102,13 +103,14 @@
             transition-timing-function: ease-in-out;
             user-select: none;
             box-shadow: 4px 4px 16px 0 #0066ffa0;
+            text-align: center;
         }
 
-        button:hover {
+        .btn:hover {
             transform: scale(1.05);
         }
 
-        button:active {
+        .btn:active {
             transform: scale(0.95);
         }
 
