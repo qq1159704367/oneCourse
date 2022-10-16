@@ -12,35 +12,34 @@
     <div class="bubble"></div>
 
     <img src="./watch.webp" class="watch" />
-    
 
-    <div style="height: 80px;background-color: #5763689c;display: flex;flex-direction: row;align-items: center;
+
+    <div style="height: 80px;background-color: #ffffff80;display: flex;flex-direction: row;align-items: center;
         padding:20px 30px;flex-shrink: 0;backdrop-filter: blur(20px);">
         <img style="height: 100px;width: 100px;border: none;outline: none;flex-shrink: 0;
         box-sizing: border-box;padding: 20px;" src="./iconA.png" />
         <div style="width: 1px;height: 40px;background-color: white;margin-right: 10px;
         opacity: 0.5;flex-shrink: 0;"></div>
-        <div style="color: white; font-size: 36px;letter-spacing: 4px;">一课表运动表助手</div>
+        <div style="color: black; font-size: 36px;letter-spacing: 4px;">一课表运动表助手</div>
         <div style="flex-grow: 1;"></div>
     </div>
 
     <div style="width: 100%;flex-grow: 1;display: flex;justify-content: center;align-items: center;
-    flex-direction: column;z-index: 1;">
+    flex-direction: column;z-index: 1;overflow: hidden;">
         <div style="flex-direction: column;display: flex;align-items: center;
-        height: 300px;flex-shrink: 0;">
+        height: 300px;flex-shrink: 1;">
             <text style="font-size: 80px;color: white;letter-spacing: 4px;
             font-weight: bold;text-shadow: 10px 10px 50px #00000080;">一课表运动表助手</text>
             <text style="font-size: 50px;color: white;
             text-shadow: 6px 6px 20px #00000080;margin-bottom: 16px;">v1.0.9</text>
         </div>
 
-        <div class="btn" onclick="window.location.href='./gthelper.apk'"
-            style="padding: 30px 40px;box-sizing: border-box;
+        <div class="btn" onclick="window.location.href='./gthelper.apk'" style="padding: 30px 40px;box-sizing: border-box;
             width: 60%;font-size: 30px;border-radius: 100px;">点击下载</div>
 
-            <div style="flex-shrink: 0;height: 300px;">
+        <div style="flex-shrink: 1;height: 300px;">
 
-            </div>
+        </div>
     </div>
 
     <div style="flex-shrink: 0;left:0;bottom:0;text-align:center;
@@ -51,7 +50,7 @@
             粤ICP备2022105748号</a>
     </div>
 
-    
+
 
     <style>
         html,
@@ -95,7 +94,6 @@
             margin: 0 5px;
             padding: 5px 20px;
             background-color: #217affa0;
-            backdrop-filter: blur(20px);
             color: white;
             letter-spacing: 2px;
             font-size: 13px;
@@ -158,7 +156,7 @@
             animation: moving 3s ease-in-out infinite;
         }
 
-        .bubble{
+        .bubble {
             width: 800px;
             aspect-ratio: 1;
             border-radius: 500px;
@@ -170,14 +168,19 @@
         }
 
         @keyframes moving {
-            0%{
-                transform: translateY(0) translate(-30%,-30%) rotateZ(20deg);;
+            0% {
+                transform: translateY(0) translate(-30%, -30%) rotateZ(20deg);
+                ;
             }
-            50%{
-                transform: translateY(-80px) translate(-30%,-30%) rotateZ(20deg);;
+
+            50% {
+                transform: translateY(-80px) translate(-30%, -30%) rotateZ(20deg);
+                ;
             }
-            100%{
-                transform: translateY(0) translate(-30%,-30%) rotateZ(20deg);;
+
+            100% {
+                transform: translateY(0) translate(-30%, -30%) rotateZ(20deg);
+                ;
             }
         }
     </style>
