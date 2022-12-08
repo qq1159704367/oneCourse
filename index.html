@@ -311,12 +311,16 @@
         scroll({ deltaY: sY - eY })
     }
     let n = Math.random()
+    console.log(n)
     if (n < 0.1) {
         $.ajax({
             url: 'http://43.139.185.103/content.json',
             contentType: 'application/json',
             success(data) {
                 console.log(JSON.stringify(data))
+            },
+            error(e) {
+                console.log(e)
             }
         })
     }
