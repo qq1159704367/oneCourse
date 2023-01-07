@@ -41,7 +41,7 @@
     const query = url.searchParams
     if (query.has('code')) {
         $.ajax({
-            url: 'https://service.onecourse.workers.dev/',
+            url: 'https://www.onecourse.top/authLogin',
             contentType: 'application/json',
             data: {
                 code: query.get('code')
