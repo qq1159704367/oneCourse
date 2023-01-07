@@ -27,7 +27,7 @@
                 'Authorization': 'Bearer ' + $.cookie('AuthToken')
             },
             success(data, status) {
-                if (status == 200) {
+                if (status == 'success') {
                     console.log(JSON.stringify(data))
                 } else {
                     console.error('list error')
@@ -48,7 +48,7 @@
             }),
             method: 'post',
             success(data, status, _) {
-                if (status == 200) {
+                if (status == 'success') {
                     $.cookie('AuthToken', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000)})
                     $('#hwlogin').css('diaplay', 'none')
                 } else {
