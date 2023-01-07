@@ -6,17 +6,36 @@
     <meta name="client_id" content="107571405" />
     <meta name="redirect_uri" content="https://www.onecourse.top/CourseView" />
     <meta name="scope" content="https://www.huawei.com/auth/drive.appdata" />
-    <title>Document</title>
+    <title>一课表登录</title>
 </head>
 
 <body>
     <div style="display: flex;align-items: center;justify-content: center;width: 100%;height: 100%;">
-        <button id="hwlogin" onclick=redirect() class="loginBtn">HUAWEIID login</button>
+        <button id="hwlogin" onclick=redirect() class="loginBtn">登录华为账号</button>
     </div>
 </body>
 
 <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="jquery.cookie.min.js"></script>
+<script>
+    function list() {
+        $.ajax({
+            url: 'https://driveapis.cloud.huawei.com.cn/drive/v1/files?fields=*&containers=applicationData',
+            contentType: 'application.json',
+            method: 'post',
+            headers: {
+                'Authorization': 'Bearer ' + $.cookie('AuthToken')
+            },
+            success(data, status) {
+                if (status == 200) {
+                    console.log(JSON.stringify(data))
+                } else {
+                    console.error('list error')
+                }
+            }
+        })
+    }
+</script>
 <script>
     const url = new URL(window.location)
     const query = url.searchParams
