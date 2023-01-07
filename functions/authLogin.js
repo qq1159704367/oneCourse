@@ -1,4 +1,4 @@
-export const onRequest = async (request) => {
+export const onRequest = async ({ request, next, env }) => {
     const param = await request.json()
     console.log(JSON.stringify(param))
     const params = new URLSearchParams();
