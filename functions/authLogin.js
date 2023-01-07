@@ -1,4 +1,4 @@
-export const onRequest: PagesFunction = async (request) => {
+export const onRequest = async (request) => {
     const param = await request.json()
     console.log(JSON.stringify(param))
     const params = new URLSearchParams();
