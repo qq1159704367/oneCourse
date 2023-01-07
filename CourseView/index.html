@@ -43,9 +43,9 @@
         $.ajax({
             url: 'https://www.onecourse.top/authLogin',
             contentType: 'application/json',
-            data: {
+            data: JSON.stringify({
                 code: query.get('code')
-            },
+            }),
             method: 'post',
             success(data, status, _) {
                 if (status == 200) {
