@@ -9,9 +9,13 @@
     <title>一课表登录</title>
 </head>
 
-<body>
-    <div style="display: flex;align-items: center;justify-content: center;width: 100%;height: 100%;">
+<body style="background: linear-gradient(220deg, #28b7ff, #0066ff);">
+    <div style="display: flex;align-items: center;justify-content: center;width: 100%;height: 100%;" id="loginPage">
         <button id="hwlogin" onclick=redirect() class="loginBtn">登录华为账号</button>
+    </div>
+    <div style="display: flex;align-items: center;box-sizing: border-box;
+    width: 100%;height: 100%;padding: 16px;flex-direction: column;">
+        <text style="color: white;font-size: 16px;">本网站数据来源于云空间</text>
     </div>
 </body>
 
@@ -20,10 +24,12 @@
 <script>
     function list() {
         $.ajax({
-            url: 'https://driveapis.cloud.huawei.com.cn/drive/v1/files?fields=*&containers=applicationData',
+            url: 'https://driveapis.cloud.huawei.com.cn/drive/v1/files?fields=*&containers=drive',
             contentType: 'application.json',
             method: 'post',
             headers: {
+                'Origin': 'https://www.onecourse.top/CourseView',
+                'Referer': 'https://www.onecourse.top/CourseView',
                 'Authorization': 'Bearer ' + $.cookie('AuthToken')
             },
             success(data, status) {
@@ -49,17 +55,18 @@
             method: 'post',
             success(data, status, _) {
                 if (status == 'success') {
-                    $.cookie('AuthToken', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000)})
-                    $('#hwlogin').css('diaplay', 'none')
+                    $.cookie('AuthToken', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
+                    $('#loginPage').css('display', 'none')
                 } else {
                     alert('登录错误，请重试')
                 }
             }
         })
+    } else {
+        list()
     }
-    if ($.cookie('AutoToken') != undefined) {
-        $('#hwlogin').css('diaplay', 'none')
-        alert('has AuthToken')
+    if ($.cookie('AuthToken') != undefined) {
+        $('#loginPage').css('display', 'none')
     }
     var client_id = '', redirect_uri = '', scope = '';
     for (var metas = document.getElementsByTagName("meta"), i = 0; i < metas.length; ++i) {
