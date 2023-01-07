@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="client_id" content="107571405" />
+    <meta name="client_id" content="107571549" />
     <meta name="redirect_uri" content="https://www.onecourse.top/CourseView" />
     <meta name="scope" content="https://www.huawei.com/auth/drive.appdata" />
     <title>一课表登录</title>
@@ -56,7 +56,7 @@
             success(data, status, _) {
                 if (status == 'success') {
                     $.cookie('AuthToken', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
-                    $('#loginPage').css('display', 'none')
+                    window.location.href = 'https://www.onecourse.top/CourseView'
                 } else {
                     alert('登录错误，请重试')
                 }
