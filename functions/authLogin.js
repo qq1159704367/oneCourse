@@ -4,8 +4,8 @@ export const onRequest = async ({ request, next, env }) => {
         const params = new URLSearchParams();
         params.append('grant_type', 'authorization_code');
         params.append('code', param.code)
-        params.append('client_id', '107571549')
-        params.append('client_secret', '5c0d2fa94e2e202342501927bb020129c86fdab5d68a44afbbb24995003c19c8')
+        params.append('client_id', '104588881')
+        params.append('client_secret', 'e226e17d22244939cfecafd70de25c1387435c890b7a9a9ce5d2cbd4f35e055f')
         params.append('redirect_uri', 'https://www.onecourse.top/CourseView')
         return await fetch('https://oauth-login.cloud.huawei.com/oauth2/v3/token', {
             headers: {
