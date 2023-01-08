@@ -3,24 +3,38 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="client_id" content="107571549" />
+    <meta name="client_id" content="104588881" />
     <meta name="redirect_uri" content="https://www.onecourse.top/CourseView" />
     <meta name="scope" content="https://www.huawei.com/auth/drive.appdata" />
     <title>一课表登录</title>
 </head>
 
 <body style="background: linear-gradient(220deg, #28b7ff, #0066ff);">
-    <div style="display: flex;align-items: center;justify-content: center;width: 100%;height: 100%;" id="loginPage">
-        <button id="hwlogin" onclick=redirect() class="loginBtn">登录华为账号</button>
-    </div>
-    <div style="display: flex;align-items: center;box-sizing: border-box;
-    width: 100%;height: 100%;padding: 16px;flex-direction: column;">
-        <text style="color: white;font-size: 16px;">本网站数据来源于云空间</text>
+    <div id="app" style="width: 100%;height: 100%;">
+        <div style="display: flex;align-items: center;justify-content: center;width: 100%;height: 100%;" v-if="!isLogin">
+            <button id="hwlogin" onclick=redirect() class="loginBtn">登录华为账号</button>
+        </div>
+        <div style="display: flex;align-items: center;box-sizing: border-box;
+        width: 100%;height: 100%;padding: 16px;flex-direction: column;" v-if="isLogin">
+            <text style="color: white;font-size: 16px;">本网站数据来源于云空间</text>
+        </div>
     </div>
 </body>
 
+<script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
 <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="jquery.cookie.min.js"></script>
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            isLogin: false
+        },
+        methods: {
+
+        }
+    })
+</script>
 <script>
     function list() {
         $.ajax({
@@ -28,8 +42,6 @@
             contentType: 'application.json',
             method: 'post',
             headers: {
-                'Origin': 'https://www.onecourse.top/CourseView',
-                'Referer': 'https://www.onecourse.top/CourseView',
                 'Authorization': 'Bearer ' + $.cookie('AuthToken')
             },
             success(data, status) {
