@@ -197,6 +197,11 @@
         priority: ['indexeddb'],
         name: 'Set'
     })
+
+    window.addEventListener('message', (e) => {
+
+    })
+
     var dayToCol = [0, 1, 2, 3, 4, 5, 6]
     var swiperManager = null
     var touchParam = null
@@ -250,6 +255,9 @@
             this.getNowBlock()
             await this.readCourseName()
             console.log(this.courseName)
+            if (this.courseName == null) {
+                return;
+            }
             await this.readCourse()
             console.log(this.courses)
             this.loadCourse()
@@ -466,6 +474,10 @@
             },
             async readCourse() {
                 return new Promise(resolve => {
+                    if (this.courseName == null) {
+                        resolve()
+                        return;
+                    }
                     storage.get(this.courseName).then(async data => {
                         console.log(data)
                         if (data[this.courseName] == undefined) {
@@ -643,6 +655,9 @@
                 this.closeSelectTable()
                 this.courseName = name
                 await this.readCourse()
+                if (this.courseName == null) {
+                    return;
+                }
                 this.loadCourse()
                 set_storage.set('nCourse', name)
             },

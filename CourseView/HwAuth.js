@@ -32,7 +32,7 @@ const getAccessToken = function (isApp, callback) {
         let loginUrl = 'https://oauth-login.cloud.huawei.com/oauth2/v3/authorize?' +
             'response_type=code&access_type=offline&state=state_parameter_passthrough_value' +
             '&client_id=' + (isApp ? AppClientId : ServiceClientId) +
-            '&redirect_uri=' + 'https://www.onecourse.top/CourseView/LoginCheck.html' +
+            '&redirect_uri=' + 'https://www.onecourse.top/CourseView/LoginCheck' +
             '&scope=' + 'https://www.huawei.com/auth/drive.appdata';
         window.open(loginUrl)
     } else {
