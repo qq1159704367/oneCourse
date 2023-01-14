@@ -75,7 +75,7 @@ const checkCloud = function(isApp, callback) {
                     if (data.code === 0) {
                         $.cookie(isApp ? 'AuthToken' : 'AuthTokenService', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
                         $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService', data.refresh_token, { expires: 180 })
-                        checkAccessTokenAndStorage(token, (res) => {
+                        checkAccessTokenAndStorage(data.access_token, (res) => {
                             if (res.code == 0) {
                                 callback({ code: 0 })
                             } else {
@@ -93,7 +93,7 @@ const checkCloud = function(isApp, callback) {
             if (data.code === 0) {
                 $.cookie(isApp ? 'AuthToken' : 'AuthTokenService', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
                 $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService', data.refresh_token, { expires: 180 })
-                checkAccessTokenAndStorage(token, (res) => {
+                checkAccessTokenAndStorage(data.access_token, (res) => {
                     if (res.code == 0) {
                         callback({ code: 0 })
                     } else {
