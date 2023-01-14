@@ -73,8 +73,8 @@ const checkCloud = function(isApp, callback) {
             } else if (res.error === '登录过期') {
                 getAccessToken(isApp, (data) => {
                     if (data.code === 0) {
-                        $.cookie(isApp ? 'AuthToken' : 'AuthTokenService', resToken, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
-                        $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService', resToken, { expires: 180 })
+                        $.cookie(isApp ? 'AuthToken' : 'AuthTokenService', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
+                        $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService', data.refresh_token, { expires: 180 })
                         checkAccessTokenAndStorage(token, (res) => {
                             if (res.code == 0) {
                                 callback({ code: 0 })
@@ -91,8 +91,8 @@ const checkCloud = function(isApp, callback) {
     } else {
         getAccessToken(isApp, (data) => {
             if (data.code === 0) {
-                $.cookie(isApp ? 'AuthToken' : 'AuthTokenService', resToken, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
-                $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService', resToken, { expires: 180 })
+                $.cookie(isApp ? 'AuthToken' : 'AuthTokenService', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
+                $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService', data.refresh_token, { expires: 180 })
                 checkAccessTokenAndStorage(token, (res) => {
                     if (res.code == 0) {
                         callback({ code: 0 })
