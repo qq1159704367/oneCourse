@@ -37,20 +37,20 @@
                         code: 1
                     })
                 }
-                // window.close()
+                window.close()
             },
             error() {
                 window.opener.LoginCallback({
                     code: 1
                 })
-                // window.close()
+                window.close()
             }
         })
     } else {
         window.opener.LoginCallback({
             code: 1
         })
-        // window.close()
+        window.close()
     }
 </script>
 
