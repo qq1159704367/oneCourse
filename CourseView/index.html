@@ -779,16 +779,15 @@
                 document.getElementById('PlatformChooseDialog').close()
             },
             loadFromCloud(isApp, items) {
-                Hw_loadFromCloud(isApp, items, () => {
+                Hw_loadFromCloud(isApp, items, storage, () => {
                     alert('导入完成')
                 })
             },
             uploadToCloud(isApp, items) {
                 checkCloud(isApp, res => {
                     if (res.code == 0) {
-                        console.log('success')
-                        Hw_uploadFromCloud(isApp, items, () => {
-                            alert('导入完成')
+                        Hw_uploadFromCloud(isApp, items, storage, () => {
+                            alert('上传完成')
                         })
                     } else {
                         alert(res.error)

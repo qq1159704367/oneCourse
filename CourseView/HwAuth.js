@@ -149,7 +149,7 @@ const getDecode = (str) => {
     }).join(''));
 }
 
-const Hw_loadFromCloud = function (isApp, items, callback) {
+const Hw_loadFromCloud = function (isApp, items, storage, callback) {
     let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenServcei')
     let promises = []
     items.forEach(item => {
