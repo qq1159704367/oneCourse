@@ -39,7 +39,7 @@ export const onRequest = async ({ request, next, env }) => {
                 method: 'post'
             })
             if (response.status == 200) {
-                let body = response.join()
+                let body = await response.json()
                 if (body['refresh_token']) {
                     body['refresh_token'] = encrypt(body['refresh_token'])
                 }
