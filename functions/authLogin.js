@@ -44,6 +44,7 @@ export const onRequest = async ({ request, next, env }) => {
                     body['refresh_token'] = encrypt(body['refresh_token'])
                 }
                 return new Response(body, {
+                    status: 200,
                     headers: {
                         'Content-Type': 'text/plain'
                     }
@@ -53,6 +54,7 @@ export const onRequest = async ({ request, next, env }) => {
             }
         } catch (e) {
             return new Response(e, {
+                status: 400,
                 headers: {
                     'Content-Type': 'text/plain'
                 }
@@ -60,8 +62,10 @@ export const onRequest = async ({ request, next, env }) => {
         }
     } catch (e) {
         return new Response(e, {
+            status: 400,
             headers: {
-            'Content-Type': 'text/plain'
-        }})
+                'Content-Type': 'text/plain'
+            }
+        })
     }
 };
