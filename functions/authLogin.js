@@ -43,6 +43,10 @@ export const onRequest = async ({ request, next, env }) => {
                 if (body['refresh_token']) {
                     body['refresh_token'] = encrypt(body['refresh_token'])
                 }
+                delete body['expires_in']
+                delete body['id_token']
+                delete body['scope']
+                delete body['token_type']
                 return new Response(JSON.stringify(body), {
                     status: 200,
                     headers: {

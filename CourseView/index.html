@@ -743,6 +743,7 @@
                 document.getElementById('PlatformChooseDialog').showModal()
             },
             choosePlatform(isApp) {
+                document.getElementById('PlatformChooseDialog').close()
                 platFormIsApp = isApp
                 if (this.platformNext === 0) {
                     checkCloud(isApp, res => {

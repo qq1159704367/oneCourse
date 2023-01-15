@@ -153,9 +153,10 @@ const Hw_loadFromCloud = function (isApp, items, callback) {
     let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenServcei')
     let promises = []
     items.forEach(item => {
+        if (!item.checked) return;
         promises.push(new Promise(resolve => {
             $.ajax({
-                url: item.contentDownloadLink,
+                url: item.link,
                 contentType: 'application/json',
                 method: 'get',
                 headers: {
@@ -165,7 +166,7 @@ const Hw_loadFromCloud = function (isApp, items, callback) {
                     if (status_ == 'success') {
                         let decodeText = getDecode(courseData)
                         let encodeCourse = btoa(pako.gzip(encodeURIComponent(decodeText), { to: 'string' }))
-                        storage.set(item.fileName.split('-')[1], encodeCourse)
+                        storage.set(item.name, encodeCourse)
                     }
                     resolve()
                 },
