@@ -43,10 +43,10 @@ export const onRequest = async ({ request, next, env }) => {
                 if (body['refresh_token']) {
                     body['refresh_token'] = encrypt(body['refresh_token'])
                 }
-                return new Response(body, {
+                return new Response(JSON.stringify(body), {
                     status: 200,
                     headers: {
-                        'Content-Type': 'text/plain'
+                        'Content-Type': 'application/json'
                     }
                 })
             } else {
