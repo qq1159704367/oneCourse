@@ -106,3 +106,76 @@ const checkCloud = function(isApp, callback) {
         })
     }
 }
+
+const Hw_uploadToCloud = function (isApp, content, callback) {
+    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenServcei')
+
+}
+
+const Hw_getCourseFromCloud = function (isApp, callback) {
+    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenServcei')
+    $.ajax({
+        url: 'https://driveapis.cloud.huawei.com.cn/drive/v1/files?fields=*&containers=applicationData',
+        contentType: 'application/json',
+        method: 'get',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+        success(data, status) {
+            if (status == 'success') {
+                console.log(JSON.stringify(data))
+                let files = data.files
+                let courses = []
+                files.forEach(file => {
+                    if (file.fileName.split('-')[0] === 'Course') {
+                        courses.push(file)
+                    }
+                })
+                callback(courses)
+            } else {
+                console.error('list error')
+                alert('获取云空间文件错误，请重试')
+            }
+        },
+        error() {
+            alert('登录过期，请重试')
+        }
+    })
+}
+
+const getDecode = (str) => {
+    return decodeURIComponent(atob(str).split('').map(function (c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+}
+
+const Hw_loadFromCloud = function (isApp, items, callback) {
+    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenServcei')
+    let promises = []
+    items.forEach(item => {
+        promises.push(new Promise(resolve => {
+            $.ajax({
+                url: item.contentDownloadLink,
+                contentType: 'application/json',
+                method: 'get',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                success(courseData, status_) {
+                    if (status_ == 'success') {
+                        let decodeText = getDecode(courseData)
+                        let encodeCourse = btoa(pako.gzip(encodeURIComponent(decodeText), { to: 'string' }))
+                        storage.set(item.fileName.split('-')[1], encodeCourse)
+                    }
+                    resolve()
+                },
+                error() {
+                    resolve()
+                }
+            })
+        }))
+    })
+    Promise.all(promises).then(() => {
+        callback()
+    })
+}

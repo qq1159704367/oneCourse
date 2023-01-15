@@ -31,11 +31,6 @@ const fileterKeys = (keys) => {
     })
     return res;
 }
-const getDecode = (str) => {
-    return decodeURIComponent(atob(str).split('').map(function (c) {
-        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-    }).join(''));
-}
 const CheckWeek = (week, weeks) => {
     if (weeks == undefined || weeks.length == 0) return true;
     return weeks.some(i => {
@@ -63,4 +58,4 @@ const px2num = (str) => {
 }
 const wcn = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
 
-export { getStorage, fill, time2num, num2time, time2num_float, num2time_float, fileterKeys, getDecode, CheckWeek, parseDate, formatDate, copy, px2num, wcn }
+export { getStorage, fill, time2num, num2time, time2num_float, num2time_float, fileterKeys, CheckWeek, parseDate, formatDate, copy, px2num, wcn }

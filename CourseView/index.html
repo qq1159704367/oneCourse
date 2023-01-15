@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/css/swiper.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/js/swiper.min.js"></script>
 <script src="./jquery.cookie.min.js"></script>
+<script src="https://cdn.staticfile.org/pako/1.0.10/pako.min.js"></script>
 <script src="./HwAuth.js"></script>
 
 <body style="background-color: #F0F0F0;">
@@ -28,14 +29,16 @@
                     <div style="height: 8px;" v-else></div>
                 </div>
                 <!-- 课表 -->
-                <div style="width: 100%; height: 100%;border-radius: 8px;overflow: hidden;margin-top: 8px;" class="swiper-container" id="courseView">
+                <div style="width: 100%; height: 100%;border-radius: 8px;overflow: hidden;margin-top: 8px;"
+                    class="swiper-container" id="courseView">
                     <div class="swiper-wrapper" style="width: 100%;">
                         <div v-for="page in pages" class="swiper-slide"
                             style="height: 100%;background-color: #FFFFFF;width: 100%;flex-direction: column;">
                             <!-- 星期栏 -->
                             <div style="height: 44px;flex-shrink: 0;width: 100%;background-color: #80808010;align-items: center;"
                                 v-bind:style="{'padding-left': timeBarWidth}">
-                                <div v-for="ws in page.weekdayShow" style="width: 100%;flex-direction: column;align-items: center;">
+                                <div v-for="ws in page.weekdayShow"
+                                    style="width: 100%;flex-direction: column;align-items: center;">
                                     <p style="font-size: 12px;transform: scale(0.8);height: 12px;flex-shrink: 0;">
                                         {{ws.text}}</p>
                                     <p style="font-size: 12px;transform: scale(0.6);height: 12px;flex-shrink: 0;">
@@ -69,7 +72,8 @@
                                                     'grid-template-columns': `1fr`}">
                                     <div v-for="ts in timesShow" style="align-items: center;"
                                         v-bind:style="{'grid-area': `${ts.s} / 1 / ${ts.e} / 1`, 'background-color': ts.color}">
-                                        <p style="white-space: pre-line;width: 50px;text-align: center;font-size: 12px;">
+                                        <p
+                                            style="white-space: pre-line;width: 50px;text-align: center;font-size: 12px;">
                                             {{ts.text}}</p>
                                     </div>
                                 </div>
@@ -80,9 +84,9 @@
                                         v-bind:style="{'grid-area': floatArea}">
                                         <div
                                             style="width: 100%;height: 100%;border-radius: 8px;background-color: #0066ff30;align-items: center;justify-content: center;">
-                                            <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                                                width="24" height="24" style="width: 50%;aspect-ratio: 1;" viewBox="0 0 24 24"
-                                                version="1.1">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
+                                                style="width: 50%;aspect-ratio: 1;" viewBox="0 0 24 24" version="1.1">
                                                 <path fill="#000000"
                                                     d="M12.75,21.25 C12.75,21.6642136 12.4142136,22 12,22 C11.5857864,22 11.25,21.6642136 11.25,21.25 L11.25,12.75 L2.75,12.75 C2.33578644,12.75 2,12.4142136 2,12 C2,11.5857864 2.33578644,11.25 2.75,11.25 L11.25,11.25 L11.25,2.75 C11.25,2.33578644 11.5857864,2 12,2 C12.4142136,2 12.75,2.33578644 12.75,2.75 L12.75,21.25 Z M21.25,11.25 C21.6642136,11.25 22,11.5857864 22,12 C22,12.4142136 21.6642136,12.75 21.25,12.75 L13.75,12.75 L13.75,11.25 L21.25,11.25 Z"
                                                     id="_path-1" />
@@ -139,18 +143,19 @@
                     <div style="flex-grow: 1;min-width: 8px;flex-shrink: 0;"></div>
                     <!-- 华为登录按钮 -->
                     <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
-                    class="clickEffect"
-                    v-on:click="loadFromCloud">从云备份中获取</div>
+                        class="clickEffect" v-on:click="openPlatformChooseDialog(0)">从云备份中获取</div>
                     <div style="width: 8px;flex-shrink: 0;"></div>
                     <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
-                        class="clickEffect" v-on:click="uploadToCloud">上传至云备份</div>
+                        class="clickEffect" v-on:click="openPlatformChooseDialog(1)">上传至云备份</div>
                 </div>
                 <div style="margin-top: 8px;width: 100%; height: 160px;padding: 16px;border-radius: 16px;background-color: #FFFFFF;overflow-x: hidden;overflow-y: auto;transition: height 300ms;flex-direction: column;"
-                v-bind:style="{'height': showItems ? '160px' : '0'}">
-                    <div v-for="item in selectItems" style="margin: 4px 0;border-radius: 8px;padding: 8px;align-items: center;width: 100%;background-color: #80808010;" class="clickEffect"
-                    v-on:click="chooseItem(item)">
+                    v-bind:style="{'height': showItems ? '160px' : '0'}">
+                    <div v-for="item in selectItems"
+                        style="margin: 4px 0;border-radius: 8px;padding: 8px;align-items: center;width: 100%;background-color: #80808010;"
+                        class="clickEffect" v-on:click="chooseItem(item)">
                         <p style="font-size: 12px;flex-grow: 1;text-overflow: ellipsis;">{{item.text}}</p>
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="width: 16px; aspect-ratio: 1;" v-on:click="deleteItem(item, $event)"
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                            style="width: 16px; aspect-ratio: 1;" v-on:click="deleteItem(item, $event)"
                             viewBox="0 0 24 24" version="1.1">
                             <path
                                 d="M19.7781746,4.22182541 C20.0710678,4.51471863 20.0710678,4.98959236 19.7781746,5.28248558 L5.28248558,19.7781746 C4.98959236,20.0710678 4.51471863,20.0710678 4.22182541,19.7781746 C3.92893219,19.4852814 3.92893219,19.0104076 4.22182541,18.7175144 L10.9395166,11.9994697 L4.22182541,5.28248558 C3.92893219,4.98959236 3.92893219,4.51471863 4.22182541,4.22182541 C4.51471863,3.92893219 4.98959236,3.92893219 5.28248558,4.22182541 L12,10.9389863 L18.7175144,4.22182541 C19.0104076,3.92893219 19.4852814,3.92893219 19.7781746,4.22182541 Z M19.7781746,18.7175144 C20.0710678,19.0104076 20.0710678,19.4852814 19.7781746,19.7781746 C19.4852814,20.0710678 19.0104076,20.0710678 18.7175144,19.7781746 L12.7072836,13.7675902 L13.767767,12.7071068 L19.7781746,18.7175144 Z"
@@ -158,7 +163,8 @@
                         </svg>
                     </div>
                 </div>
-                <div style="margin-top: 8px;width: 100%;flex-grow: 1;padding: 16px;border-radius: 16px;background-color: #FFFFFF;">
+                <div
+                    style="margin-top: 8px;width: 100%;flex-grow: 1;padding: 16px;border-radius: 16px;background-color: #FFFFFF;">
 
                 </div>
             </div>
@@ -170,13 +176,52 @@
                 <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">请选择课程表</p>
                 <div style="flex-grow: 1;width: 100%;flex-direction: column;overflow-y: auto;overflow-x: hidden;">
                     <div v-for="name in courseNames" class="clickEffect"
-                        style="width: 100%;padding: 12px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 16px;"
+                        style="width: 100%;padding: 12px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 12px;"
                         v-on:click="selectTable(name)">{{name}}
                     </div>
                 </div>
                 <div class="clickEffect"
                     style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
                     v-on:click="closeSelectTable">取消</div>
+            </div>
+        </dialog>
+
+        <dialog id="PlatformChooseDialog"
+            style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
+            <div style="width: 500px;max-width: 300px;height: 200px;flex-direction: column;">
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">请选择云空间数据归属
+                </p>
+                <div style="flex-grow: 1;width: 100%;flex-direction: column;overflow-y: auto;overflow-x: hidden;">
+                    <div class="clickEffect"
+                        style="width: 100%;padding: 12px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 12px;"
+                        v-on:click="choosePlatform(true)">一课表应用(应用市场)
+                    </div>
+                    <div class="clickEffect"
+                        style="width: 100%;padding: 12px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 12px;"
+                        v-on:click="choosePlatform(false)">一课表服务(服务中心/负一屏)
+                    </div>
+                </div>
+                <div class="clickEffect"
+                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
+                    v-on:click="PlatformChooseDialog_cancel">取消</div>
+            </div>
+        </dialog>
+
+        <dialog id="ItemCheckboxDialog"
+            style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
+            <div style="width: 500px;max-width: 300px;height: 200px;flex-direction: column;">
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">
+                    {{itemCheckboxDialog_title}}</p>
+                <div style="flex-grow: 1;width: 100%;flex-direction: column;overflow-y: auto;overflow-x: hidden;">
+                    <div v-for="(item, idx) in itemCheckboxDialog_items"
+                        style="width: 100%;padding: 12px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 12px;">
+                        <input type="checkbox" v-bind:checked="item.checked" style="flex-shrink: 0;" v-bind:value="idx" v-on:change="itemCheckboxDialog_itemCheck"/>
+                        <p style="flex-grow: 1;">{{item.name}}</p>
+                    </div>
+                </div>
+                <div class="clickEffect"
+                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
+                    v-on:click="itemCheckboxDialog_finish">确定</div>
             </div>
         </dialog>
     </div>
@@ -198,10 +243,22 @@
         name: 'Set'
     })
 
+    const decode = function(str) {
+        let strData = atob(str);
+        const charData = strData.split('').map(function (x) {
+            return x.charCodeAt(0);
+        });
+        const binData = new Uint8Array(charData);
+        const data = pako.inflate(binData);
+        strData = String.fromCharCode.apply(null, new Uint16Array(data));
+        return decodeURIComponent(strData);
+    }
+
     var dayToCol = [0, 1, 2, 3, 4, 5, 6]
     var swiperManager = null
     var touchParam = null
     var touchingTimer = null
+    var platFormIsApp = true
     var vm = new Vue({
         el: '#app',
         data: {
@@ -228,7 +285,11 @@
             showItems: false,
             selectItems: [],
             startForSunday: false,
-            weekdayLine: 0
+            weekdayLine: 0,
+
+            platformNext: 0,
+            itemCheckboxDialog_title: '标题',
+            itemCheckboxDialog_items: []
         },
         async created() {
             setTimeout(() => {
@@ -482,7 +543,7 @@
                             await this.readCourse()
                             resolve()
                         } else {
-                            this.courses = JSON.parse(utils.getDecode(data[this.courseName]))
+                            this.courses = JSON.parse(decode(data[this.courseName]))
                             resolve()
                         }
                     })
@@ -528,7 +589,7 @@
                 weekday = weekday == 0 ? 6 : weekday - 1
                 this.weekday = weekday
                 this.weekdayLine = this.startForSunday ? (weekday == 6 ? 0 : weekday + 1) + 1 : weekday + 1
-                n.setDate(n.getDate() - (this.startForSunday ? (weekday == 6 ? 0 : weekday + 1) : weekday ))
+                n.setDate(n.getDate() - (this.startForSunday ? (weekday == 6 ? 0 : weekday + 1) : weekday))
                 let betDay = (n.getTime() - this.startDate.getTime()) / 1000 / 60 / 60 / 24
                 this.realWeek = ((betDay / 7) | 0) + 1
                 if (this.realWeek < 0) {
@@ -664,17 +725,74 @@
                 e.stopPropagation()
                 alert('功能还不支持')
             },
-            loadFromCloud() {
-                checkCloud(true, res => {
+            itemCheckboxDialog_itemCheck(e) {
+                let v = e.currentTarget.value
+                this.itemCheckboxDialog_items[parseInt(v)].checked = e.currentTarget.checked
+                console.log(this.itemCheckboxDialog_items)
+            },
+            itemCheckboxDialog_finish() {
+                document.getElementById('ItemCheckboxDialog').close()
+                if (this.platformNext === 0) {
+                    this.loadFromCloud(platFormIsApp, this.itemCheckboxDialog_items)
+                } else {
+                    this.uploadToCloud(platFormIsApp, this.itemCheckboxDialog_items)
+                }
+            },
+            openPlatformChooseDialog(type) {
+                this.platformNext = type
+                document.getElementById('PlatformChooseDialog').showModal()
+            },
+            choosePlatform(isApp) {
+                platFormIsApp = isApp
+                if (this.platformNext === 0) {
+                    checkCloud(isApp, res => {
+                        if (res.code == 0) {
+                            console.log('success')
+                            Hw_getCourseFromCloud(isApp, (items) => {
+                                this.itemCheckboxDialog_items = items.map(item => {
+                                    return {
+                                        name: item.fileName.split('-')[1],
+                                        link: item.contentDownloadLink,
+                                        checked: false
+                                    }
+                                })
+                                document.getElementById('ItemCheckboxDialog').showModal()
+                            })
+                        } else {
+                            alert(res.error)
+                        }
+                    })
+                } else {
+                    storage.keys().then(keys => {
+                        this.itemCheckboxDialog_items = keys.map(v => {
+                            return {
+                                name: v,
+                                checked: false
+                            }
+                        })
+                        document.getElementById('ItemCheckboxDialog').showModal()
+                    })
+                }
+            },
+            PlatformChooseDialog_cancel() {
+                document.getElementById('PlatformChooseDialog').close()
+            },
+            loadFromCloud(isApp, items) {
+                Hw_loadFromCloud(isApp, items, () => {
+                    alert('导入完成')
+                })
+            },
+            uploadToCloud(isApp, items) {
+                checkCloud(isApp, res => {
                     if (res.code == 0) {
                         console.log('success')
+                        Hw_uploadFromCloud(isApp, items, () => {
+                            alert('导入完成')
+                        })
                     } else {
                         alert(res.error)
                     }
                 })
-            },
-            uploadToCloud() {
-
             }
         }
     })
@@ -687,7 +805,10 @@
         height: 100%;
         margin: 0;
     }
-    ::-webkit-scrollbar{display: none;}
+
+    ::-webkit-scrollbar {
+        display: none;
+    }
 
     div,
     button {
