@@ -252,6 +252,9 @@
         </dialog>
     </div>
 </body>
+<script>
+    var platFormIsApp = true
+</script>
 <script type="module">
     import * as utils from './utils.js'
     import { TimeTable } from './TimeTable.js'
@@ -285,7 +288,6 @@
     var swiperManager = null
     var touchParam = null
     var touchingTimer = null
-    var platFormIsApp = true
     var vm = new Vue({
         el: '#app',
         data: {

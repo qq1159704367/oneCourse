@@ -20,8 +20,8 @@ export const onRequest = async ({ request, next, env }) => {
     try {
         const param = await request.json()
         const params = new URLSearchParams();
-        params.append('client_id', param.type == 0 ? '104588881' : '104777563')
-        params.append('client_secret', param.type == 0 ? 'e226e17d22244939cfecafd70de25c1387435c890b7a9a9ce5d2cbd4f35e055f' : '18dc96a33f6612e52bc97bfb48b9b774fb251445077be61f82c8ecde42f2a783')
+        params.append('client_id', param.isApp ? '104588881' : '104777563')
+        params.append('client_secret', param.isApp ? 'e226e17d22244939cfecafd70de25c1387435c890b7a9a9ce5d2cbd4f35e055f' : '18dc96a33f6612e52bc97bfb48b9b774fb251445077be61f82c8ecde42f2a783')
         if (param.type == 0) {
             params.append('grant_type', 'authorization_code');
             params.append('code', param.code)
