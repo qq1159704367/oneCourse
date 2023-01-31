@@ -142,7 +142,7 @@ const randomString = function (len) {
 }
 
 const Hw_uploadToCloud = function (isApp, items, callback) {
-    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenServcei')
+    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenService')
     let promises = []
     Hw_getFilesFromCloud(isApp, 'Course', (cloudCourses) => {
         let nameToId = {}
