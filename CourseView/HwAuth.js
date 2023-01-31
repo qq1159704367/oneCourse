@@ -200,7 +200,7 @@ const Hw_uploadToCloud = function (isApp, items, callback) {
 }
 
 const Hw_getFilesFromCloud = function (isApp, prefix, callback) {
-    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenServcei')
+    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenService')
     $.ajax({
         url: 'https://driveapis.cloud.huawei.com.cn/drive/v1/files?fields=*&containers=applicationData',
         contentType: 'application/json',
@@ -231,7 +231,7 @@ const Hw_getFilesFromCloud = function (isApp, prefix, callback) {
 }
 
 const Hw_loadFile = function (isApp, link, callback) {
-    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenServcei')
+    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenService')
     $.ajax({
         url: link,
         contentType: 'application/json',
