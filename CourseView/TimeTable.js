@@ -4,9 +4,9 @@ const set_sotrage = utils.getStorage({
     priority: ['indexeddb'],
     name: 'Set'
 })
-const timeTable_sotrage = utils.getStorage({
+const time_sotrage = utils.getStorage({
     priority: ['indexeddb'],
-    name: 'TimeTable'
+    name: 'Time'
 })
 
 const buildTimesV = function(times) {
@@ -40,33 +40,36 @@ export class TimeTable{
     }
 
     static async loadTimeTable(uid) {
-        let res;
-        if (uid == null || uid === '') {
-            res = (await set_sotrage.get('loadTime')).loadTime
-        } else {
-            res = (await timeTable_sotrage.get(String(uid)))[String(uid)]
-            if (res == undefined) {
-                res = (await set_sotrage.get('loadTime')).loadTime
+        let keys = await time_sotrage.keys()
+        if (uid == null || uid === '' || keys.indexOf(uid) == -1) {
+            uid = (await set_sotrage.get('nowTimeTableUID')).nowTimeTableUID
+            if (uid == undefined) {
+                if (keys.length == 0) {
+                    return {
+                        timeTable: this.defaultTime(),
+                        timeCombine: []
+                    }
+                } else {
+                    uid = keys[0]
+                }
             }
         }
-        if (res != undefined) {
-            let data = JSON.parse(res.data)
-            let timeTable = new TimeTable()
-            timeTable.type = (data.last ? 0 : 1)
-            if (timeTable.type === 0) {
-                timeTable.times = buildTimes(data)
-                timeTable.timesV = buildTimesV(timeTable.times)
-                timeTable.length = timeTable.times.length
-            } else {
-                timeTable.complexTime = data.times
-                timeTable.complexName = data.names
-                timeTable.length = data.times.length
-            }
-            timeTable.countEnd()
-            return timeTable;
+        let tt = (await time_sotrage.get(uid))[uid]
+        let res = JSON.parse(tt)
+        let data = res.timeTable
+        let timeTable = new TimeTable()
+        timeTable.type = (data.last ? 0 : 1)
+        if (timeTable.type === 0) {
+            timeTable.times = buildTimes(data)
+            timeTable.timesV = buildTimesV(timeTable.times)
+            timeTable.length = timeTable.times.length
         } else {
-            return this.defaultTime()
+            timeTable.complexTime = data.times
+            timeTable.complexName = data.names
+            timeTable.length = data.times.length
         }
+        timeTable.countEnd()
+        return [timeTable, res.timeCombine];
     }
 
     static buildSimple(times) {
@@ -87,6 +90,18 @@ export class TimeTable{
         timeTable.end = 22.5
         timeTable.length = timeTable.times.length
         return timeTable;
+    }
+
+    buildTimeShowing() {
+        let ts = []
+        for (let i = 1; i < this.getBlockLength() + 1; i++) {
+            ts.push({
+                name: this.getName(i),
+                time: this.getStart(i),
+                last: this.getLast(i)
+            })
+        }
+        return ts
     }
 
     clone() {
@@ -260,15 +275,15 @@ export class TimeTable{
 
     toSave() {
         if (this.type === 0) {
-            return JSON.stringify({
+            return {
                 times: this.times.slice(1),
                 last: this.times[0]
-            })
+            }
         } else {
-            return JSON.stringify({
+            return {
                 times: this.complexTime,
                 names: this.complexName
-            })
+            }
         }
     }
 

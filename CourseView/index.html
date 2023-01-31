@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>一课表</title>
 </head>
+<script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.min.js"></script>
 <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Swiper/3.4.2/css/swiper.min.css">
@@ -21,7 +22,8 @@
             <div style="width: 50%;flex-direction: column;">
                 <!-- 周次栏 -->
                 <div style="width: 100%;align-items: center;flex-direction: column;">
-                    <p style="font-size: 14px;">第 {{showingWeek}} 周</p>
+                    <p style="font-size: 14px;" class="clickEffect" v-on:click="openWeekChooseDialog">第 {{showingWeek}}
+                        周</p>
                     <p style="font-size: 12px;height: 8px;color: #0066ff;transform: scale(0.7);"
                         v-if="realWeek !== -1 && realWeek != showingWeek" v-on:click="toNowWeek" class="clickEffect">
                         本周为第
@@ -62,9 +64,10 @@
                                 <!-- 星期线 -->
                                 <div v-if="realWeek === page.week" style="display: grid;width: 100%;height: 100%;position: absolute;
                                                                                         grid-template-rows: 1fr"
-                                    v-bind:style="{'grid-template-columns': `${timeBarWidth} repeat(7, 1fr)`}">
+                                    v-bind:style="{'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
                                     <div style="background-color: #0066ff10;width: 100%;height: 100%;"
-                                        v-bind:style="{'grid-area': `1 / ${weekdayLine+1} / 1 / ${weekdayLine+1}`}">
+                                        v-bind:style="{'grid-area': `1 / ${weekdayLine+1} / 1 / ${weekdayLine+1}`}"
+                                        v-if="weekdayLine < columnNum">
                                     </div>
                                 </div>
                                 <!-- 时间 -->
@@ -79,7 +82,7 @@
                                 </div>
                                 <!-- 悬浮加号 -->
                                 <div style="display: grid;width: 100%;height: 100%;position: absolute;"
-                                    v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)','grid-template-columns': `${timeBarWidth} repeat(7, 1fr)`}">
+                                    v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)','grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
                                     <div v-if="addFloatShow" style="width: 100%;height: 100%;padding: 2px;"
                                         v-bind:style="{'grid-area': floatArea}">
                                         <div
@@ -88,8 +91,7 @@
                                                 xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
                                                 style="width: 50%;aspect-ratio: 1;" viewBox="0 0 24 24" version="1.1">
                                                 <path fill="#000000"
-                                                    d="M12.75,21.25 C12.75,21.6642136 12.4142136,22 12,22 C11.5857864,22 11.25,21.6642136 11.25,21.25 L11.25,12.75 L2.75,12.75 C2.33578644,12.75 2,12.4142136 2,12 C2,11.5857864 2.33578644,11.25 2.75,11.25 L11.25,11.25 L11.25,2.75 C11.25,2.33578644 11.5857864,2 12,2 C12.4142136,2 12.75,2.33578644 12.75,2.75 L12.75,21.25 Z M21.25,11.25 C21.6642136,11.25 22,11.5857864 22,12 C22,12.4142136 21.6642136,12.75 21.25,12.75 L13.75,12.75 L13.75,11.25 L21.25,11.25 Z"
-                                                    id="_path-1" />
+                                                    d="M12.75,21.25 C12.75,21.6642136 12.4142136,22 12,22 C11.5857864,22 11.25,21.6642136 11.25,21.25 L11.25,12.75 L2.75,12.75 C2.33578644,12.75 2,12.4142136 2,12 C2,11.5857864 2.33578644,11.25 2.75,11.25 L11.25,11.25 L11.25,2.75 C11.25,2.33578644 11.5857864,2 12,2 C12.4142136,2 12.75,2.33578644 12.75,2.75 L12.75,21.25 Z M21.25,11.25 C21.6642136,11.25 22,11.5857864 22,12 C22,12.4142136 21.6642136,12.75 21.25,12.75 L13.75,12.75 L13.75,11.25 L21.25,11.25 Z"/>
                                             </svg>
                                         </div>
                                     </div>
@@ -97,8 +99,10 @@
                                 <!-- 课表内容 -->
                                 <div style="display: grid;width: 100%;height: 100%;position: absolute;"
                                     v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)',
-                                                                                'grid-template-columns': `${timeBarWidth} repeat(7, 1fr)`}" v-on:mousedown="touchSurfaceStart"
-                                    v-on:mousemove="touchSurfaceMove" v-on:mouseup="touchSurfaceEnd">
+                                                                                'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}" 
+                                                                                v-on:mousedown="touchSurfaceStart"
+                                                                                v-on:mousemove="touchSurfaceMove" 
+                                                                                v-on:mouseup="touchSurfaceEnd">
                                     <div v-for="c in page.courses" style="width: 100%;height: 100%;padding: 2px;"
                                         v-on:click="itemClick(c.realDay, c.p, $event)" v-show="showing"
                                         v-bind:style="{'grid-area': `${c.sb+1} / ${c.day+1} / ${c.eb+1} / ${c.day+1}`}">
@@ -120,33 +124,31 @@
             </div>
             <div style="width: 8px;flex-shrink: 0;"></div>
             <div style="width: 50%;flex-direction: column;">
-                <div style="flex-shrink: 0;width: 100%;">
+                <div style="flex-shrink: 0;width: 100%;align-items: center;">
                     <!-- 课表选择 -->
                     <div style="align-items: center;padding: 6px 16px;border-radius: 30px;background-color: #FFFFFF;width: fit-content;flex-shrink: 0;"
                         class="clickEffect" v-on:click="openChooseTable">
                         <p style="color: black;font-size: 14px;user-select: none;">{{courseName}}</p>
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24"
                             height="24" viewBox="0 0 24 12" version="1.1">
-                            <defs>
-                                <path
-                                    d="M18.6239478,4.2482689 L13.6439396,9.23007755 C12.97476,9.8992572 11.8984674,9.91319844 11.2123247,9.27190128 L6.21931844,4.28033009 C6.09044543,4.15145707 6.01827654,3.98735263 6.00281177,3.81902041 L6,3.7269699 C6.00562355,3.54277571 6.0787297,3.36025866 6.21931844,3.21966991 C6.50175119,2.93723717 6.95339796,2.92715028 7.24791742,3.18940926 L11.8761727,7.81586399 C12.1586054,8.09829674 12.6102522,8.10838362 12.9047717,7.84612464 L17.5330269,3.21966991 C17.8259202,2.9267767 18.3007939,2.9267767 18.5936871,3.21966991 C18.7349035,3.36088629 18.8080334,3.54440617 18.8130768,3.72943689 L18.8129192,3.77570243 C18.8071403,3.94528507 18.7441498,4.11328081 18.6239478,4.2482689 Z"
-                                    id="_path-1" />
-                            </defs>
-                            <g id="_画板" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                                <mask id="_mask-2" fill="white">
-                                    <use xlink:href="#_path-1" />
-                                </mask>
-                                <use id="_路径" fill="#000000" fill-rule="nonzero" xlink:href="#_path-1" />
-                            </g>
+                            <path
+                                d="M18.6239478,4.2482689 L13.6439396,9.23007755 C12.97476,9.8992572 11.8984674,9.91319844 11.2123247,9.27190128 L6.21931844,4.28033009 C6.09044543,4.15145707 6.01827654,3.98735263 6.00281177,3.81902041 L6,3.7269699 C6.00562355,3.54277571 6.0787297,3.36025866 6.21931844,3.21966991 C6.50175119,2.93723717 6.95339796,2.92715028 7.24791742,3.18940926 L11.8761727,7.81586399 C12.1586054,8.09829674 12.6102522,8.10838362 12.9047717,7.84612464 L17.5330269,3.21966991 C17.8259202,2.9267767 18.3007939,2.9267767 18.5936871,3.21966991 C18.7349035,3.36088629 18.8080334,3.54440617 18.8130768,3.72943689 L18.8129192,3.77570243 C18.8071403,3.94528507 18.7441498,4.11328081 18.6239478,4.2482689 Z" fill="black"/>
                         </svg>
                     </div>
+                    <svg style="margin-left: 8px;" width="24" height="24" class="clickEffect" v-on:click="toSetting"
+                        viewBox="0 0 24 24" version="1.1">
+                        <path
+                            d="M13.4894964,1.25 C14.1901033,1.25 14.8231865,1.66785112 15.0986042,2.31205231 L15.0986042,2.31205231 L15.92125,4.23625 L16.77175,4.72725 L18.8556101,4.47607817 C19.5285537,4.39491431 20.1856012,4.70961774 20.5451004,5.27951678 L20.5451004,5.27951678 L20.5800481,5.33735213 L22.0680131,7.91013134 C22.4194652,8.51781272 22.3737758,9.27669833 21.9519545,9.83782407 L21.9519545,9.83782407 L20.69375,11.51125 L20.69375,12.4885 L21.9519801,14.16219 C22.3597241,14.70461 22.4160026,15.4318142 22.1018413,16.0285992 L22.1018413,16.0285992 L22.0680196,16.0898574 L20.5800481,18.6626479 C20.2293867,19.2689622 19.5509852,19.6077912 18.8556101,19.5239218 L18.8556101,19.5239218 L16.77175,19.2725 L15.92125,19.7635 L15.0986042,21.6879477 C14.832071,22.3113682 14.2305752,22.7228063 13.5570765,22.748702 L13.5570765,22.748702 L13.4894964,22.75 L10.5105451,22.75 C9.80990141,22.75 9.17679241,22.3321056 8.90139751,21.6878548 L8.90139751,21.6878548 L8.0785,19.7635 L7.228,19.2725 L5.14438986,19.5239218 C4.47144629,19.6050857 3.81439883,19.2903823 3.45489956,18.7204832 L3.45489956,18.7204832 L3.41995189,18.6626479 L1.9319804,16.0898574 C1.58053408,15.482186 1.62621577,14.7233142 2.04801988,14.16219 L2.04801988,14.16219 L3.306,12.4885 L3.306,11.51125 L2.04804545,9.83782407 C1.64028496,9.29540252 1.58399872,8.56818536 1.89816473,7.97139057 L1.89816473,7.97139057 L1.93198692,7.91013134 L3.41995189,5.33735213 C3.77061333,4.73103782 4.44901483,4.39220884 5.14438986,4.47607817 L5.14438986,4.47607817 L7.228,4.72725 L8.0785,4.23625 L8.90139751,2.31214525 C9.1679087,1.68867667 9.7694279,1.27719647 10.4429614,1.25129813 L10.4429614,1.25129813 L10.5105451,1.25 Z M13.4894964,2.75 L10.5105451,2.75 C10.4104531,2.75 10.320009,2.8096992 10.2806668,2.90173504 L10.2806668,2.90173504 L9.42547944,4.90233575 C9.31921851,5.1509195 9.13523096,5.35835416 8.90110986,5.49353025 L8.90110986,5.49353025 L7.90597116,6.06810022 C7.67169142,6.20336791 7.39985123,6.25898058 7.13127161,6.22658714 L7.13127161,6.22658714 L4.96477622,5.96528566 C4.86543693,5.95330433 4.76852243,6.00170847 4.71842794,6.0883248 L4.71842794,6.0883248 L3.23046296,8.66110401 C3.18025552,8.74791564 3.18678258,8.85632787 3.24704275,8.93648869 L3.24704275,8.93648869 L4.55532037,10.6768191 C4.71812619,10.8933908 4.80615731,11.1569971 4.80615595,11.4279382 L4.80615595,11.4279382 L4.80615019,12.5719965 C4.80614882,12.8429255 4.71812287,13.1065199 4.55532821,13.3230849 L4.55532821,13.3230849 L3.24703351,15.0635037 C3.18677578,15.1436643 3.18024983,15.2520745 3.23045644,15.3388847 L3.23045644,15.3388847 L4.71842794,17.9116752 C4.76852243,17.9982915 4.86543693,18.0466957 4.96477622,18.0347143 L4.96477622,18.0347143 L7.13127161,17.7734129 C7.39985123,17.7410194 7.67169142,17.7966321 7.90597116,17.9318998 L7.90597116,17.9318998 L8.90110986,18.5064697 C9.13523096,18.6416458 9.31921851,18.8490805 9.42547944,19.0976643 L9.42547944,19.0976643 L10.2806668,21.098265 C10.320009,21.1903008 10.4104531,21.25 10.5105451,21.25 L10.5105451,21.25 L13.4894964,21.25 C13.5895831,21.25 13.6800236,21.190307 13.7193689,21.0982782 L13.7193689,21.0982782 L14.5747715,19.097494 C14.6810343,18.8489455 14.8650036,18.6415401 15.0990951,18.506376 L15.0990951,18.506376 L16.0940158,17.9319104 C16.3282993,17.7966355 16.6001464,17.7410191 16.8687329,17.7734134 L16.8687329,17.7734134 L19.0352238,18.0347143 C19.1345631,18.0466957 19.2314776,17.9982915 19.2815721,17.9116752 L19.2815721,17.9116752 L20.7695436,15.3388847 C20.8197502,15.2520745 20.8132242,15.1436643 20.7529665,15.0635037 L20.7529665,15.0635037 L19.4446718,13.3230849 C19.2818771,13.1065199 19.1938512,12.8429255 19.1938498,12.5719965 L19.1938498,12.5719965 L19.1938441,11.4279382 C19.1938427,11.1569971 19.2818738,10.8933908 19.4446796,10.6768191 L19.4446796,10.6768191 L20.7529572,8.93648869 C20.8132174,8.85632787 20.8197445,8.74791564 20.769537,8.66110401 L20.769537,8.66110401 L19.2815721,6.0883248 C19.2314776,6.00170847 19.1345631,5.95330433 19.0352238,5.96528566 L19.0352238,5.96528566 L16.8687329,6.2265866 C16.6001464,6.25898087 16.3282993,6.2033645 16.0940158,6.06808955 L16.0940158,6.06808955 L15.0990951,5.49362397 C14.8650036,5.3584599 14.6810343,5.15105452 14.5747715,4.90250599 L14.5747715,4.90250599 L13.7193689,2.90172176 C13.6800236,2.80969302 13.5895831,2.75 13.4894964,2.75 L13.4894964,2.75 Z M12,7.5 C14.4852814,7.5 16.5,9.51471863 16.5,12 C16.5,14.4852814 14.4852814,16.5 12,16.5 C9.51471863,16.5 7.5,14.4852814 7.5,12 C7.5,9.51471863 9.51471863,7.5 12,7.5 Z M12,9 C10.3431458,9 9,10.3431458 9,12 C9,13.6568542 10.3431458,15 12,15 C13.6568542,15 15,13.6568542 15,12 C15,10.3431458 13.6568542,9 12,9 Z"
+                            fill="black" />
+                    </svg>
                     <div style="flex-grow: 1;min-width: 8px;flex-shrink: 0;"></div>
                     <!-- 华为登录按钮 -->
                     <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
                         class="clickEffect" v-on:click="openPlatformChooseDialog(0)">从云备份中获取</div>
                     <div style="width: 8px;flex-shrink: 0;"></div>
                     <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
-                        class="clickEffect" v-on:click="openPlatformChooseDialog(1)">上传至云备份</div>
+                        class="clickEffect" v-on:click="openPlatformChooseDialog(1)"
+                        >上传至云备份</div>
                 </div>
                 <div style="margin-top: 8px;width: 100%; height: 160px;padding: 16px;border-radius: 16px;background-color: #FFFFFF;overflow-x: hidden;overflow-y: auto;transition: height 300ms;flex-direction: column;"
                     v-bind:style="{'height': showItems ? '160px' : '0'}">
@@ -202,7 +204,7 @@
                     </div>
                 </div>
                 <div class="clickEffect"
-                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
+                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 8px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
                     v-on:click="PlatformChooseDialog_cancel">取消</div>
             </div>
         </dialog>
@@ -215,13 +217,37 @@
                 <div style="flex-grow: 1;width: 100%;flex-direction: column;overflow-y: auto;overflow-x: hidden;">
                     <div v-for="(item, idx) in itemCheckboxDialog_items"
                         style="width: 100%;padding: 12px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 12px;">
-                        <input type="checkbox" v-bind:checked="item.checked" style="flex-shrink: 0;" v-bind:value="idx" v-on:change="itemCheckboxDialog_itemCheck"/>
+                        <input type="checkbox" v-bind:checked="item.checked" style="flex-shrink: 0;" v-bind:value="idx"
+                            v-on:change="itemCheckboxDialog_itemCheck" />
                         <p style="flex-grow: 1;">{{item.name}}</p>
                     </div>
                 </div>
                 <div class="clickEffect"
-                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
+                    style="border-radius: 30px;background-color: #0066ff;color: white;padding: 8px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
                     v-on:click="itemCheckboxDialog_finish">确定</div>
+                <div style="height: 8px;flex-shrink: 0;"></div>
+                <div class="clickEffect"
+                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 8px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
+                    v-on:click="itemCheckboxDialog_cancel">取消</div>
+            </div>
+        </dialog>
+
+        <dialog id="WeekChooseDialog"
+            style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
+            <div style="width: 480px;height: 200px;flex-direction: column;">
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">
+                    请选择要跳转到的周次</p>
+                <div
+                    style="flex-grow: 1;width: 100%;flex-direction: row;overflow-y: auto;overflow-x: hidden;flex-wrap: wrap;align-items: center;">
+                    <div v-for="(item, idx) in weekChooseDialog_items"
+                        style="width: 80px;padding: 8px 16px;align-items: center;justify-content: center;margin: 4px 8px;background-color: #0066ff;border-radius: 30px;font-size: 12px;color: white;"
+                        class="clickEffect" v-on:click="toWeek(idx)">
+                        <p>{{item.week}}</p>
+                    </div>
+                </div>
+                <div class="clickEffect"
+                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 8px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 8px;"
+                    v-on:click="weekChooseDialog_cancel">取消</div>
             </div>
         </dialog>
     </div>
@@ -231,8 +257,8 @@
     import { TimeTable } from './TimeTable.js'
     import { TimeCombine } from './TimeCombine.js'
     import { SwiperManager } from './Swiper.js'
-    var loadTime = TimeTable.buildSimple(['00:50', '08:00', '09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '20:00', '21:00', '22:00'])
-    var timeCombine = TimeCombine.defaultTimeCombine()
+    var loadTime = null
+    var timeCombine = null
 
     var storage = utils.getStorage({
         priority: ['indexeddb'],
@@ -243,7 +269,7 @@
         name: 'Set'
     })
 
-    const decode = function(str) {
+    const decode = function (str) {
         let strData = atob(str);
         const charData = strData.split('').map(function (x) {
             return x.charCodeAt(0);
@@ -255,6 +281,7 @@
     }
 
     var dayToCol = [0, 1, 2, 3, 4, 5, 6]
+    var showWeekend = true
     var swiperManager = null
     var touchParam = null
     var touchingTimer = null
@@ -289,13 +316,17 @@
 
             platformNext: 0,
             itemCheckboxDialog_title: '标题',
-            itemCheckboxDialog_items: []
+            itemCheckboxDialog_items: [],
+
+            weekChooseDialog_items: [],
+            columnNum: 7
         },
         async created() {
             setTimeout(() => {
                 let self = this
                 self.swiper = new Swiper('.swiper-container', {
                     loop: true,
+                    mousewheelControl: true,
                     onSlideChangeEnd(swiper) {
                         let nowIndex = swiper.realIndex
                         let a = swiper.activeIndex
@@ -307,19 +338,21 @@
                 })
             }, 100)
 
-            this.getRowNum()
-            this.buildTimeShow()
-            this.getNowBlock()
+            await this.loadSetting()
+
             await this.readCourseName()
             console.log(this.courseName)
             if (this.courseName == null) {
                 return;
             }
             await this.readCourse()
-            console.log(this.courses)
             this.loadCourse()
         },
         methods: {
+            async loadSetting() {
+                let _showWeekend = (await set_storage.get('showWeekend')).showWeekend
+                showWeekend = _showWeekend != undefined ? _showWeekend : true
+            },
             getRowNum() {
                 let rn = 0
                 for (let i = 0; i < loadTime.getBlockLength(); i++) {
@@ -501,8 +534,10 @@
                 n.setDate(n.getDate() + (week - 1) * 7)
                 let ws = []
                 for (let i = 0; i < 7; i++) {
+                    let weekday = this.startForSunday ? (i == 0 ? 6 : i - 1) : i
+                    if (!showWeekend && weekday > 4) continue;
                     ws.push({
-                        text: utils.wcn[this.startForSunday ? (i == 0 ? 6 : i - 1) : i],
+                        text: utils.wcn[weekday],
                         day: utils.fill(n.getMonth() + 1) + '/' + utils.fill(n.getDate())
                     })
                     n.setDate(n.getDate() + 1)
@@ -544,6 +579,14 @@
                             resolve()
                         } else {
                             this.courses = JSON.parse(decode(data[this.courseName]))
+                            let uid = (this.courses.timeTable && this.courses.timeTable.uid) ? this.courses.timeTable.uid : null
+                            console.log(uid)
+                            let res = (await TimeTable.loadTimeTable(uid))
+                            loadTime = res[0]
+                            timeCombine = res[1]
+                            this.getRowNum()
+                            this.buildTimeShow()
+                            this.getNowBlock()
                             resolve()
                         }
                     })
@@ -584,6 +627,13 @@
                 } else {
                     dayToCol = [0, 1, 2, 3, 4, 5, 6]
                 }
+                if (!showWeekend) {
+                    dayToCol[5] = -1
+                    dayToCol[6] = -1
+                    this.columnNum = 5
+                } else {
+                    this.columnNum = 7
+                }
                 let n = new Date()
                 let weekday = n.getDay()
                 weekday = weekday == 0 ? 6 : weekday - 1
@@ -602,11 +652,16 @@
                         buffer: this.pages,
                         buildData: this.RefreshWeek
                     })
-                    console.info('init swiper')
                     swiperManager.init(this.showingWeek)
                 } else {
                     swiperManager.setBuffer(this.pages)
                     swiperManager.init(this.showingWeek)
+                }
+                if (this.swiper) {
+                    this.$nextTick(() => {
+                        this.swiper.update()
+                        this.swiper.reLoop()
+                    })
                 }
             },
             toNowWeek() {
@@ -670,16 +725,21 @@
                 this.floatArea = `${loadTime.countBlock(u) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(d) + 1} / ${touchParam.day + 2}`
             },
             touchSurfaceEnd(e) {
-                touchParam = null
                 if (touchingTimer != null) {
                     clearInterval(touchingTimer)
                     touchingTimer = null
                     this.swiper.enableTouchControl()
+                    if (touchParam != null && touchParam.sBlock == touchParam.eBlock) {
+                        this.addFloatShow = true
+                        this.floatArea = `${loadTime.countBlock(touchParam.sBlock) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(touchParam.sBlock) + 1} / ${touchParam.day + 2}`
+                    }
                 }
+                touchParam = null
                 this.showing = true
             },
             itemClick(day, p, e) {
                 e.stopPropagation()
+                this.addFloatShow = false
                 let dayCourse = this.courses.courses[day]
                 let items = p.map(v => {
                     let course = dayCourse[v]
@@ -738,6 +798,9 @@
                     this.uploadToCloud(platFormIsApp, this.itemCheckboxDialog_items)
                 }
             },
+            itemCheckboxDialog_cancel() {
+                document.getElementById('ItemCheckboxDialog').close()
+            },
             openPlatformChooseDialog(type) {
                 this.platformNext = type
                 document.getElementById('PlatformChooseDialog').showModal()
@@ -746,10 +809,11 @@
                 document.getElementById('PlatformChooseDialog').close()
                 platFormIsApp = isApp
                 if (this.platformNext === 0) {
+                    this.itemCheckboxDialog_title = '请选择要下载的课表'
                     checkCloud(isApp, res => {
                         if (res.code == 0) {
                             console.log('success')
-                            Hw_getCourseFromCloud(isApp, (items) => {
+                            Hw_getFilesFromCloud(isApp, 'Course', (items) => {
                                 this.itemCheckboxDialog_items = items.map(item => {
                                     return {
                                         name: item.fileName.split('-')[1],
@@ -762,8 +826,9 @@
                         } else {
                             alert(res.error)
                         }
-                    })
+                    }, false)
                 } else {
+                    this.itemCheckboxDialog_title = '请选择要上传的课表'
                     storage.keys().then(keys => {
                         this.itemCheckboxDialog_items = keys.map(v => {
                             return {
@@ -786,13 +851,58 @@
             uploadToCloud(isApp, items) {
                 checkCloud(isApp, res => {
                     if (res.code == 0) {
-                        Hw_uploadFromCloud(isApp, items, storage, () => {
-                            alert('上传完成')
+                        let promises = []
+                        items.forEach(item => {
+                            if (item.checked) {
+                                promises.push(new Promise(resolve => {
+                                    storage.get(item.name).then(data => {
+                                        item.data = data[item.name]
+                                        resolve()
+                                    }).catch(e => {
+                                        resolve()
+                                    })
+                                }))
+                            }
+                        })
+                        Promise.all(promises).then(() => {
+                            Hw_uploadFromCloud(isApp, items, (success) => {
+                                if (success) {
+                                    alert('上传完成')
+                                } else {
+                                    alert('部分课表上传失败')
+                                }
+                            })
                         })
                     } else {
                         alert(res.error)
                     }
                 })
+            },
+            openWeekChooseDialog() {
+                let items = []
+                for (let i = 0; i < 30; i++) {
+                    items.push({
+                        week: `第${i + 1}周`
+                    })
+                }
+                this.weekChooseDialog_items = items
+                document.getElementById('WeekChooseDialog').showModal()
+            },
+            weekChooseDialog_cancel() {
+                document.getElementById('WeekChooseDialog').close()
+            },
+            toWeek(week) {
+                document.getElementById('WeekChooseDialog').close()
+                this.addFloatShow = false
+                let swiperView = $('#courseView')
+                swiperView.fadeOut(300, () => {
+                    this.showingWeek = week + 1
+                    swiperManager.scrollTo(week + 1, true)
+                    swiperView.fadeIn(300)
+                })
+            },
+            toSetting() {
+                window.location.href = 'Setting.html'
             }
         }
     })

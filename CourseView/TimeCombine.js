@@ -1,35 +1,9 @@
-import { getStorage } from './utils.js'
-
-const set_sotrage = getStorage({
-    priority: ['indexeddb'],
-    name: 'Set'
-})
-const timeCombine_sotrage = getStorage({
-    priority: ['indexeddb'],
-    name: 'TimeCombine'
-})
 
 export class TimeCombine{
-    constructor() {
-
+    constructor(combine) {
+        this.combine = combine
     }
     combine = []
-    static async loadTimeCombine(uid) {
-        let res;
-        if (uid == null) {
-            res = (await set_sotrage.get('timeCombine')).timeCombine
-        } else {
-            res = (await timeCombine_sotrage.get(String(uid)))[String(uid)]
-            if (res == undefined) {
-                res = (await set_sotrage.get('timeCombine')).timeCombine
-            }
-        }
-        let timeCombine = new TimeCombine()
-        if (res != undefined) {
-            timeCombine.combine = JSON.parse(res.data)
-        }
-        return timeCombine
-    }
 
     fixTimeCombine(blockLen) {
         if (this.combine.length === 0) {
@@ -73,7 +47,7 @@ export class TimeCombine{
     }
 
     static defaultTimeCombine() {
-        return new TimeCombine()
+        return new TimeCombine([])
     }
 
     unlock(bIdx, idx) {

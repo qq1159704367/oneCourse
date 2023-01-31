@@ -1,4 +1,4 @@
-import { getStorage } from 'https://unpkg.com/@sifrr/storage@0.0.9/dist/sifrr.storage.module.js'
+import { getStorage } from './sifrr.storage.module.js'
 
 const fill = (n) => {
     if (n >= 10) return String(n);

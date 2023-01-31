@@ -43,6 +43,7 @@
             contentType: 'application/json',
             data: JSON.stringify({
                 type: 0,
+                isApp: window.opener.platFormIsApp,
                 code: query.get('code')
             }),
             method: 'post',
