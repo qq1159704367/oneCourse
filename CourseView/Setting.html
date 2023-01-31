@@ -248,22 +248,24 @@
                                         let TimeCombineStorage = setting.TimeCombine
                                         let wait = []
 
-                                        wait.push(set_storage.set('showWeekend', Storage.pageSetting.hideWeekend))
+                                        time_storage.clear().then(() => {
+                                            wait.push(set_storage.set('showWeekend', Storage.pageSetting.hideWeekend))
 
-                                        Object.entries(TimeTableStorage).forEach(([timeTableId, timeTable]) => {
-                                            let timeCombine = TimeCombineStorage ? TimeCombineStorage[timeTableId] : []
-                                            wait.push(time_storage.set(timeTableId, JSON.stringify({
-                                                timeTable: JSON.parse(timeTable),
-                                                timeCombine: JSON.parse(timeCombine)
-                                            })))
-                                        })
+                                            Object.entries(TimeTableStorage).forEach(([timeTableId, timeTable]) => {
+                                                let timeCombine = TimeCombineStorage ? TimeCombineStorage[timeTableId] : []
+                                                wait.push(time_storage.set(timeTableId, JSON.stringify({
+                                                    timeTable: JSON.parse(timeTable),
+                                                    timeCombine: JSON.parse(timeCombine)
+                                                })))
+                                            })
 
-                                        wait.push(set_storage.set('nowTimeTableUID', Storage.nowTimeTableUID))
-                                        wait.push(set_storage.set('timeTable', Storage.timeTable))
+                                            wait.push(set_storage.set('nowTimeTableUID', Storage.nowTimeTableUID))
+                                            wait.push(set_storage.set('timeTable', Storage.timeTable))
 
-                                        Promise.all(wait).then(() => {
-                                            alert('获取完成')
-                                            window.location.reload()
+                                            Promise.all(wait).then(() => {
+                                                alert('获取完成')
+                                                window.location.reload()
+                                            })
                                         })
                                     } else {
                                         alert('获取设置数据失败，请重试')
