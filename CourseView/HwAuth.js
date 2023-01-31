@@ -133,7 +133,7 @@ const checkCloud = function (isApp, callback, checkStorage=true) {
 
 const randomString = function (len) {
     const set = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".split('');
-    const max = set.length();
+    const max = set.length;
     let res = ''
     for (let i = 0; i < len; i++) {
         res += set[(Math.random() * max) | 0];
