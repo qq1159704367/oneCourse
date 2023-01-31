@@ -518,7 +518,7 @@
                 for (let i = 0; i < timeCombine.combine.length; i++) {
                     let blocks = timeCombine.combine[i]
                     let s = loadTime.countBlock(blocks[0]) + 1
-                    let e = loadTime.countBlockAtEnd(blocks[blocks.length-1])
+                    let e = loadTime.countBlockAtEnd(blocks[blocks.length-1]) + 1
                     let st = loadTime.getStart(blocks[0])
                     let et = utils.num2time_float(loadTime.getStartV(blocks[blocks.length-1]) + loadTime.getLastV(blocks[blocks.length-1]))
                     let name = ''
@@ -874,7 +874,7 @@
                             }
                         })
                         Promise.all(promises).then(() => {
-                            Hw_uploadFromCloud(isApp, items, (success) => {
+                            Hw_uploadToCloud(isApp, items, (success) => {
                                 if (success) {
                                     alert('上传完成')
                                 } else {
