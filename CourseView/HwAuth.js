@@ -164,7 +164,7 @@ const Hw_uploadToCloud = function (isApp, items, callback) {
                         parentFolder: ["applicationData"]
                     }
                     let boundary = randomString(10)
-                    let encodeData = base64Encode(item.data)
+                    let encodeData = base64Encode(decode(item.data))
                     let sendData = `--${boundary}\r\nContent-Type:application/json\r\n\r\n${JSON.stringify(o)}\r\n--${boundary}\r\nContent-Type:application/octet-stream\r\n\r\n${encodeData}\r\n--${boundary}--`
                     let url = `https://driveapis.cloud.huawei.com.cn/upload/drive/v1/files/${nameToId[item.name] ? nameToId[item.name] : ''}?uploadType=multipart`
                     $.ajax({
