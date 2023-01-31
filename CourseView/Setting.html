@@ -253,8 +253,8 @@
                                         Object.entries(TimeTableStorage).forEach(([timeTableId, timeTable]) => {
                                             let timeCombine = TimeCombineStorage ? TimeCombineStorage[timeTableId] : []
                                             wait.push(time_storage.set(timeTableId, JSON.stringify({
-                                                timeTable,
-                                                timeCombine
+                                                timeTable: JSON.parse(timeTable),
+                                                timeCombine: JSON.parse(timeCombine)
                                             })))
                                         })
 
