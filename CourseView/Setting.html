@@ -155,7 +155,9 @@
         </dialog>
     </div>
 </body>
-
+<script>
+    var platFormIsApp = true
+</script>
 <script type="module">
     import * as utils from './utils.js'
     import { TimeTable } from './TimeTable.js'
@@ -169,7 +171,6 @@
         name: 'Time'
     })
 
-    var platFormIsApp = true
     var inputDialog_callback = null
 
     var vm = new Vue({
