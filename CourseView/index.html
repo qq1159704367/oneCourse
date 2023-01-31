@@ -254,6 +254,16 @@
 </body>
 <script>
     var platFormIsApp = true
+    const decode = function (str) {
+            let strData = atob(str);
+            const charData = strData.split('').map(function (x) {
+                return x.charCodeAt(0);
+            });
+            const binData = new Uint8Array(charData);
+            const data = pako.inflate(binData);
+            strData = String.fromCharCode.apply(null, new Uint16Array(data));
+            return decodeURIComponent(strData);
+        }
 </script>
 <script type="module">
     import * as utils from './utils.js'
@@ -271,17 +281,6 @@
         priority: ['indexeddb'],
         name: 'Set'
     })
-
-    const decode = function (str) {
-        let strData = atob(str);
-        const charData = strData.split('').map(function (x) {
-            return x.charCodeAt(0);
-        });
-        const binData = new Uint8Array(charData);
-        const data = pako.inflate(binData);
-        strData = String.fromCharCode.apply(null, new Uint16Array(data));
-        return decodeURIComponent(strData);
-    }
 
     var dayToCol = [0, 1, 2, 3, 4, 5, 6]
     var showWeekend = true
