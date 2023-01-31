@@ -513,18 +513,24 @@
             },
             buildTimeShow() {
                 let ts = []
-                let rs = 1
-                for (let i = 0; i < loadTime.getBlockLength(); i++) {
-                    let time = loadTime.getStart(i + 1)
-                    let s = utils.time2num(time)
-                    let l = (utils.time2num(loadTime.getLast(i + 1)) / 5) | 0
+                for (let i = 0; i < timeCombine.combine.length; i++) {
+                    let blocks = timeCombine.combine[i]
+                    let s = loadTime.countBlock(blocks[0]) + 1
+                    let e = loadTime.countBlockAtEnd(blocks[blocks.length-1])
+                    let st = loadTime.getStart(blocks[0])
+                    let et = utils.num2time_float(loadTime.getStartV(blocks[blocks.length-1]) + loadTime.getLastV(blocks[blocks.length-1]))
+                    let name = ''
+                    if (blocks.length === 1) {
+                        name = loadTime.getName(blocks[0])
+                    } else {
+                        name = loadTime.getName(blocks[0]) + '-' + loadTime.getName(blocks[blocks.length-1])
+                    }
                     ts.push({
-                        text: (i + 1) + '\n' + time + '\n' + utils.num2time(s + l * 5),
-                        s: rs,
-                        e: rs + l,
+                        text: name + '\n' + st + '\n' + et,
+                        s: s,
+                        e: e,
                         color: i % 2 === 0 ? '#00000000' : '#80808010'
                     })
-                    rs += l
                 }
                 console.log(ts)
                 this.timesShow = ts
@@ -583,7 +589,8 @@
                             console.log(uid)
                             let res = (await TimeTable.loadTimeTable(uid))
                             loadTime = res[0]
-                            timeCombine = res[1]
+                            timeCombine = new TimeCombine(res[1])
+                            timeCombine.fixTimeCombine(loadTime.getBlockLength() + 1)
                             this.getRowNum()
                             this.buildTimeShow()
                             this.getNowBlock()

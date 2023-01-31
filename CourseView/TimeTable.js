@@ -45,10 +45,7 @@ export class TimeTable{
             uid = (await set_sotrage.get('nowTimeTableUID')).nowTimeTableUID
             if (uid == undefined) {
                 if (keys.length == 0) {
-                    return {
-                        timeTable: this.defaultTime(),
-                        timeCombine: []
-                    }
+                    return [this.defaultTime(), []]
                 } else {
                     uid = keys[0]
                 }
