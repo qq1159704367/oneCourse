@@ -170,7 +170,7 @@ const Hw_uploadToCloud = function (isApp, items, callback) {
                     $.ajax({
                         url: url,
                         contentType: 'multipart/related;boundary=' + boundary,
-                        method: 'post',
+                        method: 'put',
                         headers: {
                             'Authorization': 'Bearer ' + token
                         },
