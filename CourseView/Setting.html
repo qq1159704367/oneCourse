@@ -29,7 +29,7 @@
         </div>
 
         <div style="flex-grow: 1;width: 100%;margin-top: 8px;">
-            <div style="flex-direction: column;width: calc(50% - 4px);">
+            <div style="flex-direction: column;width: calc(30% - 4px);">
                 <div style="align-items: center;" class="setting_item">
                     <p>显示周末</p>
                     <input type="checkbox" v-on:change="showWeekendChange" v-bind:checked="showWeekend" />
@@ -39,12 +39,14 @@
             <div style="width: 8px;flex-shrink: 0;"></div>
 
             <div
-                style="flex-direction: column;width: calc(50% - 4px);border-radius: 8px;background-color: #FFFFFF;padding: 16px;">
+                style="flex-direction: column;width: calc(70% - 4px);border-radius: 8px;background-color: #FFFFFF;padding: 16px;">
                 <p style="font-size: 20px;margin-bottom: 8px;">时间表设置</p>
                 <div style="width: 100%;align-items: center;">
-                    <div style="flex-grow: 1;border-radius: 30px;background-color: #80808018;align-items: center;justify-content: center;">
+                    <div
+                        style="flex-grow: 1;border-radius: 30px;background-color: #80808018;align-items: center;justify-content: center;">
                         <select v-on:change="tableChange($event.currentTarget)" required>
-                            <option v-for="timeTableObj in timeTables" v-bind:value="timeTableObj.uid" v-bind:selected="timeTableObj.uid == uid">{{timeTableObj.name}}</option>
+                            <option v-for="timeTableObj in timeTables" v-bind:value="timeTableObj.uid"
+                                v-bind:selected="timeTableObj.uid == uid">{{timeTableObj.name}}</option>
                         </select>
                     </div>
                     <div class="checkbox clickEffect" v-bind:checked="uid == defaultUid" v-on:click="useDefault"></div>
@@ -58,6 +60,13 @@
                             <div style="width: 100%;flex-direction: column;" v-for="(idx, ii) in item">
                                 <div style="align-items: stretch;">
                                     <div style="align-items: center;flex-grow: 1;">
+                                        <svg width="24" height="24" style="flex-shrink: 0;margin-right: 14px"
+                                            class="clickEffect" v-on:click="deleteTime"
+                                            v-if="idx == timeTable.getBlockLength() && idx != 1">
+                                            <path fill="black"
+                                                d="M19.7781746,4.22182541 C20.0710678,4.51471863 20.0710678,4.98959236 19.7781746,5.28248558 L5.28248558,19.7781746 C4.98959236,20.0710678 4.51471863,20.0710678 4.22182541,19.7781746 C3.92893219,19.4852814 3.92893219,19.0104076 4.22182541,18.7175144 L10.9395166,11.9994697 L4.22182541,5.28248558 C3.92893219,4.98959236 3.92893219,4.51471863 4.22182541,4.22182541 C4.51471863,3.92893219 4.98959236,3.92893219 5.28248558,4.22182541 L12,10.9389863 L18.7175144,4.22182541 C19.0104076,3.92893219 19.4852814,3.92893219 19.7781746,4.22182541 Z M19.7781746,18.7175144 C20.0710678,19.0104076 20.0710678,19.4852814 19.7781746,19.7781746 C19.4852814,20.0710678 19.0104076,20.0710678 18.7175144,19.7781746 L12.7072836,13.7675902 L13.767767,12.7071068 L19.7781746,18.7175144 Z" />
+                                        </svg>
+                                        <div v-else style="width: 24px; flex-shrink: 0;margin-right: 14px;"></div>
                                         <p>名称：</p>
                                         <p style="flex-grow: 1;overflow: hidden;border-bottom: 1px black solid;padding: 4px 8px;text-align: center;"
                                             class="clickEffect" v-on:click="clickName(idx)">{{timeShowing[idx-1].name}}
@@ -114,6 +123,9 @@
                         </div>
 
                     </div>
+                    <p class="clickEffect"
+                        style="padding: 12px;border-radius: 30px;outline: none;background-color: #0066ff;color: white;border: none;text-align: center;margin-top: 16px;" v-on:click="addTime">
+                        添加节次</p>
                 </div>
             </div>
         </div>
@@ -142,9 +154,11 @@
         <dialog id="InputDialog"
             style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
             <div style="width: 500px;max-width: 300px;padding: 16px;flex-direction: column;">
-                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">{{inputDialog_title}}
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">
+                    {{inputDialog_title}}
                 </p>
-                <input style="width: 100%;flex-shrink: 0;width: 100%;text-align: center;font-size: 16px;" placeholder="请输入" v-bind:value="inputDialog_value" v-on:change="InputDialog_change"/>
+                <input style="width: 100%;flex-shrink: 0;width: 100%;text-align: center;font-size: 16px;"
+                    placeholder="请输入" v-bind:value="inputDialog_value" v-on:change="InputDialog_change" />
                 <div class="clickEffect"
                     style="border-radius: 30px;background-color: #0066ff;color: white;padding: 8px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 8px;"
                     v-on:click="InputDialog_confirm">确定</div>
@@ -196,7 +210,7 @@
                 let defaultTime = JSON.stringify({ timeTable: TimeTable.defaultTime().convertToComplex().toSave(), timeCombine: TimeCombine.defaultTimeCombine().combine })
                 let uid = String(new Date().getTime())
                 await time_storage.set(uid, defaultTime)
-                await set_storage.set('timeTable', JSON.stringify([{uid: uid, name: '时间表1'}]))
+                await set_storage.set('timeTable', JSON.stringify([{ uid: uid, name: '时间表1' }]))
                 TimeTables = [uid]
             }
             if (defaultUid == undefined || TimeTables.indexOf(defaultUid) == -1) {
@@ -207,6 +221,9 @@
             this.timeTables = _timeTables != undefined ? JSON.parse(_timeTables) : []
 
             let [timeTable, timeCombine] = (await TimeTable.loadTimeTable(defaultUid))
+            if (timeTable.type == 0) {
+                timeTable = timeTable.convertToComplex()
+            }
             this.defaultUid = defaultUid
             this.uid = defaultUid
 
@@ -216,6 +233,7 @@
             this.timeTable = timeTable
             let ts = timeTable.buildTimeShowing()
             this.timeShowing = ts
+            this.save()
         },
         methods: {
             back() {
@@ -309,7 +327,7 @@
             clickName(i) {
                 this.openInputDialog('请输入节次名称', this.timeTable.getName(i), () => {
                     console.log(i, this.inputDialog_value)
-                    this.timeTable.complexName[i-1] = this.inputDialog_value
+                    this.timeTable.complexName[i - 1] = this.inputDialog_value
                     this.timeShowing = this.timeTable.buildTimeShowing()
                     this.save()
                 })
@@ -342,6 +360,9 @@
                 let value = e[e.selectedIndex].value
                 console.log(value)
                 let [timeTable, timeCombine] = (await TimeTable.loadTimeTable(value))
+                if (timeTable.type == 0) {
+                    timeTable = timeTable.convertToComplex()
+                }
                 this.uid = value
 
                 timeCombine = new TimeCombine(timeCombine)
@@ -350,12 +371,36 @@
                 this.timeTable = timeTable
                 let ts = timeTable.buildTimeShowing()
                 this.timeShowing = ts
+                this.save()
             },
             useDefault() {
                 if (this.defaultUid == this.uid) return;
                 set_storage.set('nowTimeTableUID', this.uid).then(() => {
                     this.defaultUid = this.uid
                 })
+            },
+            deleteTime() {
+                this.timeTable.remove(this.timeTable.getBlockLength() - 1)
+                this.timeCombine.fixTimeCombine(this.timeTable.getBlockLength() + 1)
+                this.save()
+            },
+            addTime() {
+                let t = this.timeTable.getStartV(this.timeTable.getBlockLength() + 1)
+                let l = this.timeTable.getLastV(this.timeTable.getBlockLength() + 1)
+                let nt = utils.num2time_float(t + l + 0.1667)
+                let nl = utils.num2time_float(l)
+                if (t + l >= 24) {
+                    alert('再增加将超过24点')
+                    return;
+                }
+                if (t + l + l > 24) {
+                    nt = utils.num2time_float(t + l)
+                    nl = utils.num2time_float(24 - t - l)
+                }
+                this.timeTable.add(nt, nl)
+                this.timeShowing = this.timeTable.buildTimeShowing()
+                this.timeCombine.fixTimeCombine(this.timeTable.getBlockLength() + 1)
+                this.save()
             }
         }
     })

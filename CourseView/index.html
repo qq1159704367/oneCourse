@@ -80,31 +80,14 @@
                                             {{ts.text}}</p>
                                     </div>
                                 </div>
-                                <!-- 悬浮加号 -->
-                                <div style="display: grid;width: 100%;height: 100%;position: absolute;"
-                                    v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)','grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
-                                    <div v-if="addFloatShow" style="width: 100%;height: 100%;padding: 2px;"
-                                        v-bind:style="{'grid-area': floatArea}">
-                                        <div
-                                            style="width: 100%;height: 100%;border-radius: 8px;background-color: #0066ff30;align-items: center;justify-content: center;">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
-                                                style="width: 50%;aspect-ratio: 1;" viewBox="0 0 24 24" version="1.1">
-                                                <path fill="#000000"
-                                                    d="M12.75,21.25 C12.75,21.6642136 12.4142136,22 12,22 C11.5857864,22 11.25,21.6642136 11.25,21.25 L11.25,12.75 L2.75,12.75 C2.33578644,12.75 2,12.4142136 2,12 C2,11.5857864 2.33578644,11.25 2.75,11.25 L11.25,11.25 L11.25,2.75 C11.25,2.33578644 11.5857864,2 12,2 C12.4142136,2 12.75,2.33578644 12.75,2.75 L12.75,21.25 Z M21.25,11.25 C21.6642136,11.25 22,11.5857864 22,12 C22,12.4142136 21.6642136,12.75 21.25,12.75 L13.75,12.75 L13.75,11.25 L21.25,11.25 Z"/>
-                                            </svg>
-                                        </div>
-                                    </div>
-                                </div>
                                 <!-- 课表内容 -->
                                 <div style="display: grid;width: 100%;height: 100%;position: absolute;"
                                     v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)',
-                                                                                'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}" 
-                                                                                v-on:mousedown="touchSurfaceStart"
-                                                                                v-on:mousemove="touchSurfaceMove" 
-                                                                                v-on:mouseup="touchSurfaceEnd">
+                                                                                'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}" v-on:mousedown="touchSurfaceStart"
+                                    v-on:mousemove="touchSurfaceMove" v-on:mouseup="touchSurfaceEnd">
                                     <div v-for="c in page.courses" style="width: 100%;height: 100%;padding: 2px;"
-                                        v-on:click="itemClick(c.realDay, c.p, $event)" v-show="showing"
+                                        v-on:click.stop="itemClick(c.realDay, c.p, $event)" v-show="showing"
+                                        v-on:mousedown.stop="" v-on:mouseup.stop=""
                                         v-bind:style="{'grid-area': `${c.sb+1} / ${c.day+1} / ${c.eb+1} / ${c.day+1}`}">
                                         <div style="width: 100%;height: 100%;border-radius: 8px;padding: 4px;flex-direction: column;"
                                             class="clickEffect" v-bind:style="{'background-color': c.color}">
@@ -114,6 +97,23 @@
                                                 v-bind:style="{'color': c.textDark}"><span>{{c.name}}</span></div>
                                             <p style="font-size: 12px;transform: scale(0.8);width: 100%;text-align: center;text-overflow: ellipsis;max-lines: 3;flex-shrink: 0;"
                                                 v-bind:style="{'color': c.textDark}">{{c.place}}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 悬浮加号 -->
+                                <div style="display: grid;width: 100%;height: 100%;position: absolute;pointer-events: none;"
+                                    v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)','grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
+                                    <div v-if="addFloatShow" style="width: 100%;height: 100%;padding: 2px;"
+                                        v-bind:style="{'grid-area': floatArea}">
+                                        <div class="clickEffect" v-on:click.stop="wantToAddCourse"
+                                            style="width: 100%;height: 100%;border-radius: 8px;background-color: #0066ff30;align-items: center;justify-content: center;"
+                                            v-bind:style="{'pointer-events': floatParam == null ? 'none' : 'auto'}">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
+                                                style="width: 50%;aspect-ratio: 1;" viewBox="0 0 24 24" version="1.1">
+                                                <path fill="#000000"
+                                                    d="M12.75,21.25 C12.75,21.6642136 12.4142136,22 12,22 C11.5857864,22 11.25,21.6642136 11.25,21.25 L11.25,12.75 L2.75,12.75 C2.33578644,12.75 2,12.4142136 2,12 C2,11.5857864 2.33578644,11.25 2.75,11.25 L11.25,11.25 L11.25,2.75 C11.25,2.33578644 11.5857864,2 12,2 C12.4142136,2 12.75,2.33578644 12.75,2.75 L12.75,21.25 Z M21.25,11.25 C21.6642136,11.25 22,11.5857864 22,12 C22,12.4142136 21.6642136,12.75 21.25,12.75 L13.75,12.75 L13.75,11.25 L21.25,11.25 Z" />
+                                            </svg>
                                         </div>
                                     </div>
                                 </div>
@@ -132,7 +132,8 @@
                         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24"
                             height="24" viewBox="0 0 24 12" version="1.1">
                             <path
-                                d="M18.6239478,4.2482689 L13.6439396,9.23007755 C12.97476,9.8992572 11.8984674,9.91319844 11.2123247,9.27190128 L6.21931844,4.28033009 C6.09044543,4.15145707 6.01827654,3.98735263 6.00281177,3.81902041 L6,3.7269699 C6.00562355,3.54277571 6.0787297,3.36025866 6.21931844,3.21966991 C6.50175119,2.93723717 6.95339796,2.92715028 7.24791742,3.18940926 L11.8761727,7.81586399 C12.1586054,8.09829674 12.6102522,8.10838362 12.9047717,7.84612464 L17.5330269,3.21966991 C17.8259202,2.9267767 18.3007939,2.9267767 18.5936871,3.21966991 C18.7349035,3.36088629 18.8080334,3.54440617 18.8130768,3.72943689 L18.8129192,3.77570243 C18.8071403,3.94528507 18.7441498,4.11328081 18.6239478,4.2482689 Z" fill="black"/>
+                                d="M18.6239478,4.2482689 L13.6439396,9.23007755 C12.97476,9.8992572 11.8984674,9.91319844 11.2123247,9.27190128 L6.21931844,4.28033009 C6.09044543,4.15145707 6.01827654,3.98735263 6.00281177,3.81902041 L6,3.7269699 C6.00562355,3.54277571 6.0787297,3.36025866 6.21931844,3.21966991 C6.50175119,2.93723717 6.95339796,2.92715028 7.24791742,3.18940926 L11.8761727,7.81586399 C12.1586054,8.09829674 12.6102522,8.10838362 12.9047717,7.84612464 L17.5330269,3.21966991 C17.8259202,2.9267767 18.3007939,2.9267767 18.5936871,3.21966991 C18.7349035,3.36088629 18.8080334,3.54440617 18.8130768,3.72943689 L18.8129192,3.77570243 C18.8071403,3.94528507 18.7441498,4.11328081 18.6239478,4.2482689 Z"
+                                fill="black" />
                         </svg>
                     </div>
                     <svg style="margin-left: 8px;" width="24" height="24" class="clickEffect" v-on:click="toSetting"
@@ -147,26 +148,75 @@
                         class="clickEffect" v-on:click="openPlatformChooseDialog(0)">从云备份中获取</div>
                     <div style="width: 8px;flex-shrink: 0;"></div>
                     <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
-                        class="clickEffect" v-on:click="openPlatformChooseDialog(1)"
-                        >上传至云备份</div>
-                </div>
-                <div style="margin-top: 8px;width: 100%; height: 160px;padding: 16px;border-radius: 16px;background-color: #FFFFFF;overflow-x: hidden;overflow-y: auto;transition: height 300ms;flex-direction: column;"
-                    v-bind:style="{'height': showItems ? '160px' : '0'}">
-                    <div v-for="item in selectItems"
-                        style="margin: 4px 0;border-radius: 8px;padding: 8px;align-items: center;width: 100%;background-color: #80808010;"
-                        class="clickEffect" v-on:click="chooseItem(item)">
-                        <p style="font-size: 12px;flex-grow: 1;text-overflow: ellipsis;">{{item.text}}</p>
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-                            style="width: 16px; aspect-ratio: 1;" v-on:click="deleteItem(item, $event)"
-                            viewBox="0 0 24 24" version="1.1">
-                            <path
-                                d="M19.7781746,4.22182541 C20.0710678,4.51471863 20.0710678,4.98959236 19.7781746,5.28248558 L5.28248558,19.7781746 C4.98959236,20.0710678 4.51471863,20.0710678 4.22182541,19.7781746 C3.92893219,19.4852814 3.92893219,19.0104076 4.22182541,18.7175144 L10.9395166,11.9994697 L4.22182541,5.28248558 C3.92893219,4.98959236 3.92893219,4.51471863 4.22182541,4.22182541 C4.51471863,3.92893219 4.98959236,3.92893219 5.28248558,4.22182541 L12,10.9389863 L18.7175144,4.22182541 C19.0104076,3.92893219 19.4852814,3.92893219 19.7781746,4.22182541 Z M19.7781746,18.7175144 C20.0710678,19.0104076 20.0710678,19.4852814 19.7781746,19.7781746 C19.4852814,20.0710678 19.0104076,20.0710678 18.7175144,19.7781746 L12.7072836,13.7675902 L13.767767,12.7071068 L19.7781746,18.7175144 Z"
-                                fill="black" />
-                        </svg>
-                    </div>
+                        class="clickEffect" v-on:click="openPlatformChooseDialog(1)">上传至云备份</div>
                 </div>
                 <div
-                    style="margin-top: 8px;width: 100%;flex-grow: 1;padding: 16px;border-radius: 16px;background-color: #FFFFFF;">
+                    style="margin-top: 8px;width: 100%;flex-grow: 1;padding: 16px;border-radius: 16px;background-color: #FFFFFF;flex-direction: column;min-height: min-content;flex-shrink: 0;">
+                    <div style="align-items: center;margin: 8px 0;">
+                        <p style="width: 200px;flex-shrink: 0;">课程名称</p>
+                        <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemName"
+                            v-on:input="changeItem('itemName', $event)"
+                            v-bind:style="{'background-color': itemNameValid ? '#80808020' : '#ff000020'}" />
+                    </div>
+                    <div style="align-items: center;margin: 8px 0;">
+                        <p style="width: 200px;flex-shrink: 0;">上课星期</p>
+                        <p v-for="(day, i) in dayName"
+                            style="flex-grow: 1;margin: 0 8px;padding: 4px 8px;border-radius: 30px;text-align: center;font-size: 12px;"
+                            class="clickEffect"
+                            v-bind:style="{'background-color': (i == itemDay ? '#0066ff30' : '#80808020')}"
+                            v-on:click="changeItemDay(i)">周{{day}}</p>
+                    </div>
+                    <div style="align-items: center;margin: 8px 0;">
+                        <p style="width: 200px;flex-shrink: 0;">上课时间</p>
+                        <input type="time" min="00:00" max="23:59" step="300" pattern="\d{2}:\d{2}"
+                            style="margin-left: 0;text-align: center;font-weight: bold;" v-bind:value="itemStart"
+                            v-on:input="changeItem('itemStart', $event)"
+                            v-bind:style="{'background-color': itemStartValid ? '#80808020' : '#ff000020'}" />
+                    </div>
+                    <div style="align-items: center;margin: 8px 0;">
+                        <p style="width: 200px;flex-shrink: 0;">上课时长</p>
+                        <input type="time" min="00:00" max="23:59" step="300" pattern="\d{2}:\d{2}"
+                            style="margin-left: 0;text-align: center;font-weight: bold;" v-bind:value="itemLast"
+                            v-on:input="changeItem('itemLast', $event)"
+                            v-bind:style="{'background-color': itemLastValid ? '#80808020' : '#ff000020'}" />
+                    </div>
+                    <p style="font-size: 10px;opacity: 0.7;margin-bottom: 8px;">注意：上课时间+上课时长就等于下课时间噢</p>
+                    <div style="align-items: center;margin: 8px 0;">
+                        <p style="width: 200px;flex-shrink: 0;">上课周次</p>
+                        <input style="margin-left: 0;" placeholder="请输入上课周次" v-bind:value="itemWeek" type="text"
+                            v-on:input="changeItem('itemWeek', $event)"
+                            pattern="^\[?(\d+([-——]\d+[单双]?)?([ ,，、]\d+([-——]\d+[单双]?)?)*)?\]?$"
+                            v-bind:style="{'background-color': itemWeekValid ? '#80808020' : '#ff000020'}" />
+                    </div>
+                    <p style="font-size: 10px;opacity: 0.7;margin-bottom: 8px;">
+                        上课周次输入规则<br>[1]表示第一周上课<br>[1-6]表示第一周到第六周都上<br>[1-6双]表示第一周到第六周的双周都上<br>你可以把他们组合起来如：[1,2-6,8-14单]表示第一周、第二周到第六周、第八周到第十四周的单周都上
+                    </p>
+                    <div style="align-items: center;margin: 8px 0;">
+                        <p style="width: 200px;flex-shrink: 0;">上课教师</p>
+                        <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemTeacher"
+                            v-on:input="changeItem('itemTeacher', $event)" />
+                    </div>
+                    <div style="align-items: center;margin: 8px 0;">
+                        <p style="width: 200px;flex-shrink: 0;">上课地点</p>
+                        <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemPlace"
+                            v-on:input="changeItem('itemPlace', $event)" />
+                    </div>
+                    <p style="align-items: center;margin: 8px 0;border-radius: 30px;background-color: #0066ff;text-align: center;padding: 8px;color: white;"
+                        v-if="nowEdit == null" class="clickEffect" v-on:click="addCourse">
+                        完成
+                    </p>
+                    <div style="align-items: center;margin: 8px 0;" v-else>
+                        <p style="align-items: center;border-radius: 30px;background-color: #0066ff;text-align: center;padding: 8px;color: white;flex-grow: 1;"
+                            class="clickEffect" v-on:click="saveCourse"
+                            v-bind:style="{'opacity': saveAble ? 1 : 0.5, 'pointer-events': saveAble ? 'auto' : 'none'}">
+                            保存
+                        </p>
+                        <div style="width: 16px;flex-shrink: 0;"></div>
+                        <p style="align-items: center;border-radius: 30px;background-color: #dd0000;text-align: center;padding: 8px;color: white;flex-grow: 1;"
+                            class="clickEffect" v-on:click="deleteCourse">
+                            删除
+                        </p>
+                    </div>
 
                 </div>
             </div>
@@ -174,17 +224,26 @@
 
         <dialog id="selectTable"
             style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
-            <div style="width: 500px;max-width: 300px;height: 200px;flex-direction: column;">
+            <div style="width: 500px;max-width: 300px;height: 300px;flex-direction: column;">
                 <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">请选择课程表</p>
                 <div style="flex-grow: 1;width: 100%;flex-direction: column;overflow-y: auto;overflow-x: hidden;">
                     <div v-for="name in courseNames" class="clickEffect"
                         style="width: 100%;padding: 12px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 12px;"
-                        v-on:click="selectTable(name)">{{name}}
+                        v-on:click="selectTable(name)">
+                        <p style="flex-grow: 1;text-align: center;">{{name}}</p>
+                        <svg width="24" height="24" style="flex-shrink: 0;transform: scale(0.75)" class="clickEffect" v-on:click="deleteTable(name)">
+                            <path
+                                d="M19.7781746,4.22182541 C20.0710678,4.51471863 20.0710678,4.98959236 19.7781746,5.28248558 L5.28248558,19.7781746 C4.98959236,20.0710678 4.51471863,20.0710678 4.22182541,19.7781746 C3.92893219,19.4852814 3.92893219,19.0104076 4.22182541,18.7175144 L10.9395166,11.9994697 L4.22182541,5.28248558 C3.92893219,4.98959236 3.92893219,4.51471863 4.22182541,4.22182541 C4.51471863,3.92893219 4.98959236,3.92893219 5.28248558,4.22182541 L12,10.9389863 L18.7175144,4.22182541 C19.0104076,3.92893219 19.4852814,3.92893219 19.7781746,4.22182541 Z M19.7781746,18.7175144 C20.0710678,19.0104076 20.0710678,19.4852814 19.7781746,19.7781746 C19.4852814,20.0710678 19.0104076,20.0710678 18.7175144,19.7781746 L12.7072836,13.7675902 L13.767767,12.7071068 L19.7781746,18.7175144 Z"
+                                />
+                        </svg>
                     </div>
                 </div>
                 <div class="clickEffect"
                     style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
                     v-on:click="closeSelectTable">取消</div>
+                <div class="clickEffect"
+                    style="border-radius: 30px;background-color: #0066ff;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 16px;"
+                    v-on:click="createTable">新建课程表</div>
             </div>
         </dialog>
 
@@ -250,20 +309,147 @@
                     v-on:click="weekChooseDialog_cancel">取消</div>
             </div>
         </dialog>
+
+        <dialog id="NewTableDialog"
+            style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
+            <div style="width: 500px;max-width: 300px;flex-direction: column;">
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">新建课程表</p>
+                <div style="align-items: center;margin: 4px 0;">
+                    <p>名称</p>
+                    <input placeholder="请输入课程表名称" v-bind:value="newCourseName" />
+                </div>
+                <div style="align-items: center;margin: 4px 0;">
+                    <p>开学日期</p>
+                    <input placeholder="请输入开学日期" v-bind:value="newCourseDate" v-on:input="newCourseDateChange" />
+                </div>
+                <p style="font-size: 12px;opacity: 0.7;">开学日期为第一周周一或周日：XXXX-XX-XX</p>
+                <p style="font-size: 10px;" v-bind:style="{'color': dateError ? 'red' : 'black'}" v-if="dateError">请注意格式
+                </p>
+                <div class="clickEffect"
+                    style="border-radius: 30px;background-color: #0066ff;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 16px;"
+                    v-on:click="createTableConfirm">确定</div>
+                <div class="clickEffect"
+                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 16px;"
+                    v-on:click="closeNewTableDialog">取消</div>
+            </div>
+        </dialog>
     </div>
 </body>
 <script>
     var platFormIsApp = true
     const decode = function (str) {
-            let strData = atob(str);
-            const charData = strData.split('').map(function (x) {
-                return x.charCodeAt(0);
-            });
-            const binData = new Uint8Array(charData);
-            const data = pako.inflate(binData);
-            strData = String.fromCharCode.apply(null, new Uint16Array(data));
-            return decodeURIComponent(strData);
+        let strData = atob(str);
+        const charData = strData.split('').map(function (x) {
+            return x.charCodeAt(0);
+        });
+        const binData = new Uint8Array(charData);
+        const data = pako.inflate(binData);
+        strData = String.fromCharCode.apply(null, new Uint16Array(data));
+        return decodeURIComponent(strData);
+    }
+
+    const encode = function (str) {
+        return btoa(pako.gzip(encodeURIComponent(str), { to: 'string' }))
+    }
+
+    const weekCombine = function (Week) {
+        Week.forEach((v, i) => {
+            console.log(v)
+            if (typeof v === 'number') v = String(v)
+            if (v.indexOf('-') !== -1 || v.indexOf('——') !== -1) {
+                let t = v.split(/[\-——]/)
+                if (t[0] == t[1])
+                    Week[i] = t[0]
+            }
+        })
+        let newWeek = []
+        Week.forEach(w => {
+            let t = w.split(/[\-——]/)
+            if (t.length == 1) {
+                if (Number(w) <= 50 && newWeek.indexOf(Number(w)) == -1)
+                    newWeek.push(Number(w))
+            } else {
+                for (let i = Number(t[0]); i <= Number(t[1]) && i <= 50; i++) {
+                    if (newWeek.indexOf(i) == -1)
+                        newWeek.push(i)
+                }
+            }
+        })
+        newWeek.sort((a, b) => { return a - b })
+        if (newWeek.length != 0 && newWeek[0] == 0) newWeek.splice(0, 1)
+        let wt = []
+        if (newWeek.length != 0) {
+            let s = newWeek[0]
+            let e = s
+            for (let i = 1; i < newWeek.length; i++) {
+                if (newWeek[i] != e + 1) {
+                    if (s == e)
+                        wt.push(String(s))
+                    else
+                        wt.push(s + '-' + e)
+                    s = newWeek[i]
+                }
+                e = newWeek[i]
+            }
+            if (s == e)
+                wt.push(String(s))
+            else
+                wt.push(s + '-' + e)
         }
+        return wt
+    }
+
+    const getWeek = function (str) {
+        str = str.replace(/[\[\]]/g, '').replace(/——/g, '-').replace(/[， 、]/g, ',').replace(/[^\d-,单双]/, '')
+        console.log(str)
+        let weeks = str.split(',')
+        let res = []
+        for (let w = 0; w < weeks.length; w++) {
+            let week = weeks[w]
+            if (typeof week === 'number') week = String(week)
+            if (week === '') continue;
+            let type = 2
+            if (week.indexOf('单') !== -1) type = 1
+            if (week.indexOf('双') !== -1) type = 0
+            week = week.replace(/[^\d\-——]/g, '')
+            let s, e
+            if (week.indexOf('-') !== -1 || week.indexOf('——') !== -1) {
+                let t = week.split(/[\-——]/)
+                if (t[0] == '' || t[1] == '') continue;
+                s = parseInt(t[0])
+                e = parseInt(t[1])
+            } else {
+                try {
+                    s = e = parseInt(week)
+                } catch (e) { continue }
+            }
+            if (s < 1 || e > 50) return '周次不可小于1或大于50';
+            console.log(`${s},${e},${type}`)
+            if (type == 2) res.unshift(week)
+            else {
+                for (let i = s; i <= e; i++) {
+                    if (i % 2 == type) res.unshift(String(i))
+                }
+            }
+        }
+        return weekCombine(res.sort((w1, w2) => {
+            let t1 = w1.split('-')
+            let t2 = w2.split('-')
+            return parseInt(t1[0]) - parseInt(t2[0])
+        }))
+    }
+
+    const push = function (arr, item, compare_fn) {
+        for (let i = 0; i < arr.length; i++) {
+            let ret = compare_fn(arr[i], item)
+            if (ret > 0) {
+                arr.splice(i, 0, item)
+                return i
+            }
+        }
+        arr.push(item)
+        return arr.length - 1
+    }
 </script>
 <script type="module">
     import * as utils from './utils.js'
@@ -309,6 +495,7 @@
             },
             addFloatShow: false,
             floatArea: '',
+            floatParam: null,
             showing: true,
             showItems: false,
             selectItems: [],
@@ -320,7 +507,29 @@
             itemCheckboxDialog_items: [],
 
             weekChooseDialog_items: [],
-            columnNum: 7
+            columnNum: 7,
+
+            newCourseName: '课程表',
+            newCourseDate: '2023-01-02',
+            dateError: false,
+
+            itemName: '',
+            itemDay: 2,
+            itemStart: '08:30',
+            itemLast: '01:30',
+            itemTeacher: '',
+            itemPlace: '',
+            itemWeek: '',
+            itemLock: false,
+            itemNameValid: false,
+            itemStartValid: true,
+            itemLastValid: true,
+            itemWeekValid: true,
+            dayName: '一二三四五六日'.split(''),
+
+            nowEdit: null,
+            showingParam: null,
+            saveAble: false
         },
         async created() {
             setTimeout(() => {
@@ -337,7 +546,7 @@
                         }
                     }
                 })
-            }, 100)
+            }, 300)
 
             await this.loadSetting()
 
@@ -517,14 +726,14 @@
                 for (let i = 0; i < timeCombine.combine.length; i++) {
                     let blocks = timeCombine.combine[i]
                     let s = loadTime.countBlock(blocks[0]) + 1
-                    let e = loadTime.countBlockAtEnd(blocks[blocks.length-1]) + 1
+                    let e = loadTime.countBlockAtEnd(blocks[blocks.length - 1]) + 1
                     let st = loadTime.getStart(blocks[0])
-                    let et = utils.num2time_float(loadTime.getStartV(blocks[blocks.length-1]) + loadTime.getLastV(blocks[blocks.length-1]))
+                    let et = utils.num2time_float(loadTime.getStartV(blocks[blocks.length - 1]) + loadTime.getLastV(blocks[blocks.length - 1]))
                     let name = ''
                     if (blocks.length === 1) {
                         name = loadTime.getName(blocks[0])
                     } else {
-                        name = loadTime.getName(blocks[0]) + '-' + loadTime.getName(blocks[blocks.length-1])
+                        name = loadTime.getName(blocks[0]) + '-' + loadTime.getName(blocks[blocks.length - 1])
                     }
                     ts.push({
                         text: name + '\n' + st + '\n' + et,
@@ -587,7 +796,7 @@
                         } else {
                             this.courses = JSON.parse(decode(data[this.courseName]))
                             let uid = (this.courses.timeTable && this.courses.timeTable.uid) ? this.courses.timeTable.uid : null
-                            console.log(uid)
+                            console.log(this.courses)
                             let res = (await TimeTable.loadTimeTable(uid))
                             loadTime = res[0]
                             timeCombine = new TimeCombine(res[1])
@@ -603,6 +812,7 @@
             weekChange(nowIndex) {
                 console.log(nowIndex)
                 this.addFloatShow = false
+                this.floatParam = null
                 let o = swiperManager.current[1]
                 let n = nowIndex
                 if (o == n) return;
@@ -628,6 +838,8 @@
                 console.log('load...' + (new Date().getTime() - nt))
             },
             loadCourse() {
+                this.floatParam = null
+                this.addFloatShow = false
                 this.startDate = utils.parseDate(this.courses.start)
                 this.startForSunday = this.startDate.getDay() == 0
                 if (this.startForSunday) {
@@ -674,6 +886,7 @@
             },
             toNowWeek() {
                 this.addFloatShow = false
+                this.floatParam = null
                 let swiperView = $('#courseView')
                 swiperView.fadeOut(300, () => {
                     this.showingWeek = this.realWeek
@@ -682,6 +895,7 @@
                 })
             },
             touchSurfaceStart(e) {
+                console.log('touch')
                 let x = e.offsetX, y = e.offsetY
                 let w = e.target.clientWidth, h = e.target.clientHeight
                 let bh = h / this.rowNum
@@ -702,6 +916,7 @@
                 this.floatArea = `${loadTime.countBlock(u) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(d) + 1} / ${touchParam.day + 2}`
 
                 this.addFloatShow = false
+                this.floatParam = null
                 touchingTimer = setTimeout(() => {
                     touchingTimer = null
                     this.addFloatShow = true
@@ -733,6 +948,7 @@
                 this.floatArea = `${loadTime.countBlock(u) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(d) + 1} / ${touchParam.day + 2}`
             },
             touchSurfaceEnd(e) {
+                console.log('touchEnd')
                 if (touchingTimer != null) {
                     clearInterval(touchingTimer)
                     touchingTimer = null
@@ -742,29 +958,37 @@
                         this.floatArea = `${loadTime.countBlock(touchParam.sBlock) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(touchParam.sBlock) + 1} / ${touchParam.day + 2}`
                     }
                 }
+                if (this.addFloatShow) {
+                    this.floatParam = touchParam
+                    this.wantToAddCourse()
+                }
                 touchParam = null
                 this.showing = true
             },
             itemClick(day, p, e) {
-                e.stopPropagation()
+                if (e) e.stopPropagation()
                 this.addFloatShow = false
-                let dayCourse = this.courses.courses[day]
-                let items = p.map(v => {
-                    let course = dayCourse[v]
-                    let arr = [course.name]
-                    arr.push(course.s + '-' + utils.num2time(utils.time2num(course.s) + utils.time2num(course.l)))
-                    if (course.teacher) arr.push(course.teacher)
-                    if (course.place) arr.push(course.place)
-                    if (course.week && course.week.length != 0) arr.push(course.week.join(','))
-                    return {
-                        text: arr.join(' '),
-                        day: day - 1,
-                        p: v
-                    }
-                })
-                console.log(items)
-                this.selectItems = items
-                this.showItems = true
+                this.floatParam = null
+
+                if (this.showingParam == null || this.showingParam[0] != day || this.showingParam[1].toString() != p.toString()) {
+                    this.nowEdit = [day, p[0]]
+                    this.showingParam = [day, p, 0]
+                } else {
+                    this.showingParam[2]++
+                    this.showingParam[2] %= p.length
+                    this.nowEdit[1] = p[this.showingParam[2]]
+                }
+
+                let course = this.courses.courses[this.nowEdit[0]][this.nowEdit[1]]
+                this.itemName = course.name
+                this.itemNameValid = true
+                this.itemStart = course.s
+                this.itemLast = course.l
+                this.itemWeek = course.week.join(',')
+                this.itemTeacher = course.teacher || ''
+                this.itemPlace = course.place || ''
+                this.itemLock = course.lock || false
+                this.itemDay = day
             },
             closeSelectTable() {
                 console.log('closeDialog')
@@ -786,12 +1010,21 @@
                 this.loadCourse()
                 set_storage.set('nCourse', name)
             },
-            chooseItem(item) {
-                alert('功能还不支持')
-            },
-            deleteItem(item, e) {
-                e.stopPropagation()
-                alert('功能还不支持')
+            chooseItem(item, i) {
+                if (i == this.showingParam[2]) return;
+                this.showingParam[2] = i
+                this.nowEdit[1] = item.p
+
+                let course = this.courses.courses[this.nowEdit[0]][this.nowEdit[1]]
+                this.itemName = course.name
+                this.itemNameValid = true
+                this.itemStart = course.s
+                this.itemLast = course.l
+                this.itemWeek = course.week.join(',')
+                this.itemTeacher = course.teacher || ''
+                this.itemPlace = course.place || ''
+                this.itemLock = course.lock || false
+                this.itemDay = day
             },
             itemCheckboxDialog_itemCheck(e) {
                 let v = e.currentTarget.value
@@ -902,6 +1135,7 @@
             toWeek(week) {
                 document.getElementById('WeekChooseDialog').close()
                 this.addFloatShow = false
+                this.floatParam = null
                 let swiperView = $('#courseView')
                 swiperView.fadeOut(300, () => {
                     this.showingWeek = week + 1
@@ -911,6 +1145,196 @@
             },
             toSetting() {
                 window.location.href = 'Setting.html'
+            },
+            createTable() {
+                storage.keys().then(keys => {
+                    let i = 1
+                    while (keys.indexOf('课程表' + i) != -1) {
+                        i++
+                    }
+                    this.newCourseName = '课程表' + i
+                    let date = new Date()
+                    date.setMonth(0, 1)
+                    let day = date.getDay()
+                    date.setDate(1 + (7 - (day == 0 ? 6 : day - 1)) % 7)
+                    this.newCourseDate = date.getFullYear() + '-' + utils.fill(date.getMonth() + 1) + '-' + utils.fill(date.getDate())
+                    document.getElementById('selectTable').close()
+                    document.getElementById('NewTableDialog').showModal()
+                })
+            },
+            newCourseDateChange(e) {
+                let v = e.currentTarget.value
+                this.newCourseDate = v
+                console.log(v)
+                let r = /^\d{4}-\d{1,2}-\d{1,2}$/
+                if (r.test(v)) {
+                    this.dateError = false
+                } else {
+                    this.dateError = true
+                    return
+                }
+                let p = v.split('-')
+                p = [parseInt(p[0]), parseInt(p[1]), parseInt(p[2])]
+                if (p[0] > 0 && p[1] > 0 && p[2] > 0) {
+                    this.dateError = false
+                } else {
+                    this.dateError = true
+                    return
+                }
+                let date = new Date(p[0], p[1] - 1, p[2])
+                if (date.getDay() < 2) {
+                    this.dateError = false
+                } else {
+                    this.dateError = true
+                    return
+                }
+            },
+            createTableConfirm() {
+                if (this.dateError) {
+                    alert('请检查上述信息正确')
+                } else {
+                    let nc = {
+                        name: this.newCourseName,
+                        start: this.newCourseDate,
+                        courses: [[], [], [], [], [], [], []],
+                        timeTable: null
+                    }
+                    let data = encode(JSON.stringify(nc))
+                    storage.set(nc.name, data).then(async () => {
+                        document.getElementById('NewTableDialog').close()
+                        this.courseName = nc.name
+                        await this.readCourse()
+                        if (this.courseName == null) {
+                            return;
+                        }
+                        this.loadCourse()
+                        set_storage.set('nCourse', nc.name)
+                    })
+                }
+            },
+            closeNewTableDialog() {
+                document.getElementById('NewTableDialog').close()
+            },
+            wantToAddCourse() {
+                this.itemName = ''
+                this.itemNameValid = false
+                this.itemTeacher = ''
+                this.itemPlace = ''
+                this.itemWeek = ''
+                this.itemDay = dayToCol.indexOf(this.floatParam.day)
+                this.itemStart = loadTime.getStart(this.floatParam.sBlock)
+                this.itemLast = utils.num2time_float(loadTime.getStartV(this.floatParam.eBlock) - loadTime.getStartV(this.floatParam.sBlock) + loadTime.getLastV(this.floatParam.eBlock))
+
+                this.selectItems = null
+                this.showItems = false
+                this.nowEdit = null
+                this.showingParam = null
+            },
+            changeItemDay(i) {
+                this.itemDay = i
+                if (this.nowEdit != null) {
+                    this.saveAble = true
+                }
+            },
+            changeItem(key, e) {
+                this[key] = e.currentTarget.value
+                this[key + 'Valid'] = e.currentTarget.validity.valid
+                if (key == 'itemName' && e.currentTarget.value == '') {
+                    this.itemNameValid = false
+                }
+                if (this.nowEdit != null) {
+                    this.saveAble = true
+                }
+            },
+            save() {
+                let data = encode(JSON.stringify(this.courses))
+                storage.set(this.courses.name, data).then(async () => {
+                    swiperManager.refresh()
+                })
+            },
+            addCourse() {
+                if (this.itemNameValid & this.itemStartValid & this.itemLastValid & this.itemWeekValid) {
+                    let weeks = getWeek(this.itemWeek)
+                    if (typeof weeks == 'string') {
+                        alert(weeks)
+                        return;
+                    }
+                    let p = push(this.courses.courses[this.itemDay], {
+                        name: this.itemName,
+                        s: this.itemStart,
+                        l: this.itemLast,
+                        week: weeks,
+                        teacher: this.itemTeacher,
+                        place: this.itemPlace,
+                        lock: this.itemLock
+                    }, (c1, c2) => {
+                        return utils.time2num(c1.s) - utils.time2num(c2.s)
+                    })
+                    this.save()
+                    this.nowEdit = [this.itemDay, p]
+                    this.addFloatShow = false
+                    this.floatParam = null
+                } else {
+                    alert('请正确填写信息')
+                }
+
+            },
+            saveCourse() {
+                let weeks = getWeek(this.itemWeek)
+                if (typeof weeks == 'string') {
+                    alert(weeks)
+                    return;
+                }
+                let original = this.courses.courses[this.nowEdit[0]][this.nowEdit[1]]
+                let newOne = {
+                    name: this.itemName,
+                    s: this.itemStart,
+                    l: this.itemLast,
+                    week: weeks,
+                    teacher: this.itemTeacher,
+                    place: this.itemPlace,
+                    lock: this.itemLock
+                }
+                this.courses.courses[this.nowEdit[0]].splice(this.nowEdit[1], 1)
+                let p = push(this.courses.courses[this.itemDay], { ...original, ...newOne }, (c1, c2) => {
+                    return utils.time2num(c1.s) - utils.time2num(c2.s)
+                })
+                this.save()
+                this.saveAble = false
+                this.showingParam = null
+                this.nowEdit = [this.itemDay, p]
+            },
+            deleteCourse() {
+                if (confirm('确定删除该课程吗？')) {
+                    this.courses.courses[this.nowEdit[0]].splice(this.nowEdit[1], 1)
+                    this.nowEdit = null
+                    this.save()
+                    this.saveAble = false
+                    this.showingParam = null
+
+                    this.itemName = ''
+                    this.itemNameValid = false
+                    this.itemTeacher = ''
+                    this.itemPlace = ''
+                    this.itemWeek = ''
+                }
+            },
+            deleteTable(name) {
+                if (this.courseNames.length == 1) {
+                    alert('这是最后一个课表了')
+                    return;
+                }
+                if (confirm(`确定删除课程表[${name}]吗？`)) {
+                    storage.del(name)
+                    if (name == this.courseName) {
+                        this.readCourseName().then(() => {
+                            this.readCourse().then(() => {
+                                this.loadCourse()
+                            })
+                        })
+                    }
+                }
+                document.getElementById('selectTable').close()
             }
         }
     })
@@ -964,6 +1388,16 @@
 
     .clickEffect:active {
         transform: scale(0.9);
+    }
+
+    input {
+        padding: 8px 16px;
+        border-radius: 30px;
+        outline: none;
+        border: none;
+        background-color: #80808020;
+        flex-grow: 1;
+        margin-left: 16px;
     }
 </style>
 

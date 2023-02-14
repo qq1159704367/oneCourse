@@ -26,6 +26,7 @@ export class SwiperManager {
         }
         this.current[0] = idx
         this.current[1] = 0
+        this.#buffer.push()
     }
 
     printCurrent() {
@@ -81,6 +82,7 @@ export class SwiperManager {
                 res = true
             }
         }
+        this.#buffer.push()
         return res
     }
 
@@ -99,8 +101,10 @@ export class SwiperManager {
                 this.#buffer[nn] = this.#buildBlockData(block + i)
                 this.dataBlock[nn] = block + i
             }
+            this.#buffer.push()
             return true
         }
+        this.#buffer.push()
         return false
     }
 
@@ -126,6 +130,7 @@ export class SwiperManager {
         this.#buffer[n] = this.#buildBlockData(idx, flush)
         this.dataBlock[n] = idx
         this.current[0] = idx
+        this.#buffer.push()
     }
 
     setBuffer(buffer) {
@@ -134,6 +139,7 @@ export class SwiperManager {
 
     refresh(flush) {
         this.scrollTo(this.current[0], flush)
+        this.#buffer.push()
     }
 
     getCacheSize() {
