@@ -50,7 +50,9 @@ export const onRequest = async ({ request, next, env }) => {
                 return new Response(JSON.stringify(body), {
                     status: 200,
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': 'https://ffffffds.gitee.io',
+                        'Access-Control-Allow-Methods': 'POST,OPTIONS'
                     }
                 })
             } else {

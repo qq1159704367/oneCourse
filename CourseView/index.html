@@ -1202,13 +1202,9 @@
                     let data = encode(JSON.stringify(nc))
                     storage.set(nc.name, data).then(async () => {
                         document.getElementById('NewTableDialog').close()
-                        this.courseName = nc.name
-                        await this.readCourse()
-                        if (this.courseName == null) {
-                            return;
-                        }
-                        this.loadCourse()
-                        set_storage.set('nCourse', nc.name)
+                        set_storage.set('nCourse', nc.name).then(() => {
+                            window.location.reload()
+                        })
                     })
                 }
             },
