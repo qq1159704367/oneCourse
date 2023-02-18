@@ -41,6 +41,10 @@
         $.ajax({
             url: 'https://www.onecourse.top/authLogin',
             contentType: 'application/json',
+            headers: {
+                'access-control-request-headers': 'content-type',
+                'access-control-request-method': 'POST'
+            },
             data: JSON.stringify({
                 type: 0,
                 isApp: window.opener.platFormIsApp,

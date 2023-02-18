@@ -37,7 +37,7 @@ export const onRequest = async ({ request, next, env }) => {
         if (param.type == 0) {
             params.append('grant_type', 'authorization_code');
             params.append('code', param.code)
-            params.append('redirect_uri', 'https://ffffffds.gitee.io/htmlcourse/CourseView/LoginCheck')
+            params.append('redirect_uri', 'https://ffffffds.gitee.io/htmlcourse/LoginCheck')
         } else {
             params.append('grant_type', 'refresh_token');
             params.append('refresh_token', decrypt(param.code))
