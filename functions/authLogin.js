@@ -18,6 +18,17 @@ const decrypt = str => {
 
 export const onRequest = async ({ request, next, env }) => {
     try {
+        if (request.method == 'OPTIONS') {
+            return new Response(null, {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': 'https://ffffffds.gitee.io',
+                    'Access-Control-Allow-Methods': 'POST,OPTIONS'
+                }
+            })
+        }
+
         const param = await request.json()
         const params = new URLSearchParams();
         params.append('client_id', param.isApp ? '104588881' : '104777563')
