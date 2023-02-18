@@ -63,7 +63,8 @@ export const onRequest = async ({ request, next, env }) => {
                     headers: {
                         'Content-Type': 'application/json',
                         'Access-Control-Allow-Origin': 'https://ffffffds.gitee.io',
-                        'Access-Control-Allow-Methods': 'POST,OPTIONS'
+                        'Access-Control-Allow-Methods': 'POST,OPTIONS',
+                        'Access-Control-Allow-Headers': 'Content-Type,sec-ch-ua,sec-ch-ua-mobile,sec-ch-ua-platform'
                     }
                 })
             } else {
