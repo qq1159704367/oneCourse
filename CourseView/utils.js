@@ -32,7 +32,7 @@ const fileterKeys = (keys) => {
     return res;
 }
 const CheckWeek = (week, weeks) => {
-    if (weeks == undefined || weeks.length == 0 || typeof weeks !== 'array') return true;
+    if (weeks == undefined || weeks.length == 0 || !(weeks instanceof Array)) return true;
     return weeks.some(i => {
         if (typeof i === 'number') i = String(i)
         if (i.indexOf('-') == -1) {

@@ -4,245 +4,346 @@
 <head>
     <meta charset="UTF-8">
     <title>一课表</title>
+    <link href="./images/icon.ico" rel="icon" />
 </head>
 <script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.min.js"></script>
 <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
 <link rel="stylesheet" href="./swiper.min.css">
 <script src="./swiper.min.js"></script>
-<script src="./jquery.cookie.min.js"></script>
 <script src="https://cdn.staticfile.org/pako/1.0.10/pako.min.js"></script>
 <script src="./HwAuth.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
+<script src="./Toast.js"></script>
 
 <body style="background-color: #F0F0F0;">
-    <div id="app" style="display: flex;width: 100%;height: 100%;flex-direction: column;padding: 8px;">
-        <p style="font-size: 12px;color: black;opacity: 0.6;margin-bottom: 8px;width: 100%;text-align: center;
+    <div id="app" style="width: 100%;height: 100%;position: relative;">
+        <img v-if="backgroundImg != null" v-bind:src="backgroundImg"
+            style="position: absolute;width: 100%;height: 100%;object-fit: cover;z-index: -1;pointer-events: none;">
+        <div style="display: flex;width: 100%;height: 100%;flex-direction: column;padding: 8px;">
+            <p style="font-size: 12px;color: black;opacity: 0.6;margin-bottom: 8px;width: 100%;text-align: center;
         flex-shrink: 0;">温馨提示：请勿清理浏览器数据，否则数据将丢失</p>
-        <div style="width: 100%;height: 100%;">
-            <div style="width: 50%;flex-direction: column;">
-                <!-- 周次栏 -->
-                <div style="width: 100%;align-items: center;flex-direction: column;">
-                    <p style="font-size: 14px;" class="clickEffect" v-on:click="openWeekChooseDialog">第 {{showingWeek}}
-                        周</p>
-                    <p style="font-size: 12px;height: 8px;color: #0066ff;transform: scale(0.7);"
-                        v-if="realWeek !== -1 && realWeek != showingWeek" v-on:click="toNowWeek" class="clickEffect">
-                        本周为第
-                        {{realWeek}} 周</p>
-                    <div style="height: 8px;" v-else></div>
-                </div>
-                <!-- 课表 -->
-                <div style="width: 100%; height: 100%;border-radius: 8px;overflow: hidden;margin-top: 8px;"
-                    class="swiper-container" id="courseView">
-                    <div class="swiper-wrapper" style="width: 100%;">
-                        <div v-for="page in pages" class="swiper-slide"
-                            style="height: 100%;background-color: #FFFFFF;width: 100%;flex-direction: column;">
-                            <!-- 星期栏 -->
-                            <div style="height: 44px;flex-shrink: 0;width: 100%;background-color: #80808010;align-items: center;"
-                                v-bind:style="{'padding-left': timeBarWidth}">
-                                <div v-for="ws in page.weekdayShow"
-                                    style="width: 100%;flex-direction: column;align-items: center;">
-                                    <p style="font-size: 12px;transform: scale(0.8);height: 12px;flex-shrink: 0;">
-                                        {{ws.text}}</p>
-                                    <p style="font-size: 12px;transform: scale(0.6);height: 12px;flex-shrink: 0;">
-                                        {{ws.day}}
-                                    </p>
-                                    <div style="background-color: #0066ff;border-radius: 8px;width: 60%;height: 3px;flex-shrink: 0;margin-top: 2px;"
-                                        v-if="ws.day === today">
+            <div style="width: 100%;height: 100%;">
+                <div style="width: 50%;flex-direction: column;" id="observeTarget"
+                    v-bind:style="{width: (closeTab ? 'calc(100% - 24px)' : '50%')}">
+                    <!-- 周次栏 -->
+                    <div style="width: 100%;align-items: center;flex-direction: column;">
+                        <p style="font-size: 14px;font-weight: bold;" class="clickEffect" v-on:click="openWeekChooseDialog">第
+                            {{showingWeek}}
+                            周</p>
+                        <p style="font-size: 12px;height: 8px;color: #0066ff;transform: scale(0.7);text-shadow: white 0 0 5px"
+                            v-if="realWeek !== -1 && realWeek != showingWeek" v-on:click="toNowWeek"
+                            class="clickEffect">
+                            本周为第
+                            {{realWeek}} 周</p>
+                        <div style="height: 8px;" v-else></div>
+                    </div>
+
+                    <div style="width: 100%;height: 100%;margin-top: 8px;position: relative;">
+                        <!-- 课表 -->
+                        <div style="width: 100%; height: 100%;border-radius: 8px;overflow: hidden;background-color: #FFFFFF;"
+                            v-bind:style="{'background-color': backgroundImg != null ? '#FFFFFF50' : '#FFFFFF' }"
+                            class="swiper-container" id="courseView">
+                            <div class="swiper-wrapper" style="width: 100%;">
+                                <div v-for="page in pages" class="swiper-slide"
+                                    style="height: 100%;width: 100%;flex-direction: column;">
+                                    <!-- 星期栏 -->
+                                    <div style="height: 44px;flex-shrink: 0;width: 100%;background-color: #80808010;align-items: center;"
+                                        v-bind:style="{'padding-left': timeBarWidth}">
+                                        <div v-for="(ws, i) in page.weekdayShow" class="weekItem"
+                                            style="width: 100%;flex-direction: column;align-items: center;position: relative;"
+                                            v-bind:data-day="i">
+                                            <p
+                                                style="font-size: 12px;transform: scale(0.8);height: 12px;flex-shrink: 0;">
+                                                {{ws.text}}</p>
+                                            <p
+                                                style="font-size: 12px;transform: scale(0.6);height: 12px;flex-shrink: 0;">
+                                                {{ws.day}}
+                                            </p>
+                                            <div style="background-color: #0066ff;border-radius: 8px;width: 60%;height: 3px;flex-shrink: 0;margin-top: 2px;"
+                                                v-if="ws.day === today">
+                                            </div>
+                                            <div v-else style="height: 3px;margin-top: 2px;flex-shrink: 0;"></div>
+                                            <div style="position: absolute;width: 100%;height: 100%;background-color: #FFFFFF80;flex-direction: column;
+                                    align-items: center;overflow: hidden;" class="menu">
+                                                <div
+                                                    style="flex-direction: row;align-items: center;justify-content: center;width: 100%;flex-grow: 1;overflow: hidden;">
+                                                    <img src="./images/copy.svg" class="lighten"
+                                                        onclick="copyOrMoveDay('copy', event)"
+                                                        style="border-radius: 50%;max-width: 32px;width: 50%;aspect-ratio: 1;padding: 8px;margin: 2px;box-sizing: border-box;" />
+                                                    <img src="./images/move.svg" class="lighten"
+                                                        onclick="copyOrMoveDay('move', event)"
+                                                        style="border-radius: 50%;max-width: 32px;width: 50%;aspect-ratio: 1;padding: 8px;margin: 2px;box-sizing: border-box;" />
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div v-else style="height: 3px;margin-top: 2px;flex-shrink: 0;"></div>
-                                </div>
-                            </div>
-                            <div style="flex-grow: 1;width: 100%;position: relative;">
-                                <!-- 时间线 -->
-                                <div style="display: grid;width: 100%;height: 100%;position: absolute;
+                                    <div style="flex-grow: 1;width: 100%;position: relative;">
+                                        <!-- 时间线 -->
+                                        <div style="display: grid;width: 100%;height: 100%;position: absolute;
                                                             grid-template-columns: 1fr"
-                                    v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)'}">
-                                    <div style="background-color: #0066ff10;width: 100%;height: 100%;"
-                                        v-bind:style="{'grid-area': `${nBlock.sb} / 1 / ${nBlock.eb} / 1`}">
-                                    </div>
-                                </div>
-                                <!-- 星期线 -->
-                                <div v-if="realWeek === page.week" style="display: grid;width: 100%;height: 100%;position: absolute;
-                                                                                        grid-template-rows: 1fr"
-                                    v-bind:style="{'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
-                                    <div style="background-color: #0066ff10;width: 100%;height: 100%;"
-                                        v-bind:style="{'grid-area': `1 / ${weekdayLine+1} / 1 / ${weekdayLine+1}`}"
-                                        v-if="weekdayLine < columnNum">
-                                    </div>
-                                </div>
-                                <!-- 时间 -->
-                                <div style="display: grid;width: 100%;height: 100%;position: absolute;" v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)',
-                                                    'grid-template-columns': `1fr`}">
-                                    <div v-for="ts in timesShow" style="align-items: center;"
-                                        v-bind:style="{'grid-area': `${ts.s} / 1 / ${ts.e} / 1`, 'background-color': ts.color}">
-                                        <p
-                                            style="white-space: pre-line;width: 50px;text-align: center;font-size: 12px;">
-                                            {{ts.text}}</p>
-                                    </div>
-                                </div>
-                                <!-- 课表内容 -->
-                                <div style="display: grid;width: 100%;height: 100%;position: absolute;"
-                                    v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)',
-                                                                                'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}" v-on:mousedown="touchSurfaceStart"
-                                    v-on:mousemove="touchSurfaceMove" v-on:mouseup="touchSurfaceEnd">
-                                    <div v-for="c in page.courses" style="width: 100%;height: 100%;padding: 2px;"
-                                        v-on:click.stop="itemClick(c.realDay, c.p, $event)" v-show="showing"
-                                        v-on:mousedown.stop="" v-on:mouseup.stop=""
-                                        v-bind:style="{'grid-area': `${c.sb+1} / ${c.day+1} / ${c.eb+1} / ${c.day+1}`}">
-                                        <div style="width: 100%;height: 100%;border-radius: 8px;padding: 4px;flex-direction: column;"
-                                            class="clickEffect" v-bind:style="{'background-color': c.color}">
-                                            <p style="font-size: 12px;transform: scale(0.8);width: 100%;text-align: center;text-overflow: ellipsis;max-lines: 1;flex-shrink: 0;"
-                                                v-bind:style="{'color': c.textDark}">{{c.teacher}}</p>
-                                            <div style="font-size: 12px;flex-grow: 1;text-align: center;align-items: center;justify-content: center;"
-                                                v-bind:style="{'color': c.textDark}"><span>{{c.name}}</span></div>
-                                            <p style="font-size: 12px;transform: scale(0.8);width: 100%;text-align: center;text-overflow: ellipsis;max-lines: 3;flex-shrink: 0;"
-                                                v-bind:style="{'color': c.textDark}">{{c.place}}</p>
+                                            v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)'}">
+                                            <div style="background-color: #0066ff10;width: 100%;height: 100%;"
+                                                v-bind:style="{'grid-area': `${nBlock.sb} / 1 / ${nBlock.eb} / 1`}">
+                                            </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <!-- 悬浮加号 -->
-                                <div style="display: grid;width: 100%;height: 100%;position: absolute;pointer-events: none;"
-                                    v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)','grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
-                                    <div v-if="addFloatShow" style="width: 100%;height: 100%;padding: 2px;"
-                                        v-bind:style="{'grid-area': floatArea}">
-                                        <div class="clickEffect" v-on:click.stop="wantToAddCourse"
-                                            style="width: 100%;height: 100%;border-radius: 8px;background-color: #0066ff30;align-items: center;justify-content: center;"
-                                            v-bind:style="{'pointer-events': floatParam == null ? 'none' : 'auto'}">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
-                                                style="width: 50%;aspect-ratio: 1;" viewBox="0 0 24 24" version="1.1">
-                                                <path fill="#000000"
-                                                    d="M12.75,21.25 C12.75,21.6642136 12.4142136,22 12,22 C11.5857864,22 11.25,21.6642136 11.25,21.25 L11.25,12.75 L2.75,12.75 C2.33578644,12.75 2,12.4142136 2,12 C2,11.5857864 2.33578644,11.25 2.75,11.25 L11.25,11.25 L11.25,2.75 C11.25,2.33578644 11.5857864,2 12,2 C12.4142136,2 12.75,2.33578644 12.75,2.75 L12.75,21.25 Z M21.25,11.25 C21.6642136,11.25 22,11.5857864 22,12 C22,12.4142136 21.6642136,12.75 21.25,12.75 L13.75,12.75 L13.75,11.25 L21.25,11.25 Z" />
-                                            </svg>
+                                        <!-- 星期线 -->
+                                        <div v-if="realWeek === page.week" style="display: grid;width: 100%;height: 100%;position: absolute;
+                                                                                        grid-template-rows: 1fr"
+                                            v-bind:style="{'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
+                                            <div style="background-color: #0066ff10;width: 100%;height: 100%;"
+                                                v-bind:style="{'grid-area': `1 / ${weekdayLine+1} / 1 / ${weekdayLine+1}`}"
+                                                v-if="weekdayLine <= columnNum">
+                                            </div>
+                                        </div>
+                                        <!-- 时间 -->
+                                        <div style="display: grid;width: 100%;height: 100%;position: absolute;"
+                                            v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)',
+                                                    'grid-template-columns': `1fr`}">
+                                            <div v-for="ts in timesShow" style="align-items: center;"
+                                                v-bind:style="{'grid-area': `${ts.s} / 1 / ${ts.e} / 1`, 'background-color': ts.color}">
+                                                <p
+                                                    style="white-space: pre-line;width: 50px;text-align: center;font-size: 12px;">
+                                                    {{ts.text}}</p>
+                                            </div>
+                                        </div>
+                                        <!-- 课表内容 -->
+                                        <div id="courseBg"
+                                            style="display: grid;width: 100%;height: 100%;position: absolute;"
+                                            v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)',
+                                                                                'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}"
+                                            onmousedown="touchSurfaceStart()" onmousemove="touchSurfaceMove()"
+                                            onmouseup="touchSurfaceEnd()" ondrop="dropCourse(event)"
+                                            ondragover="event.dataTransfer.dropEffect='move';event.preventDefault()">
+                                            <div v-for="c in page.courses" v-bind:data-day="c.realDay"
+                                                v-bind:data-p="c.p.toString()" onclick="itemClick(this)"
+                                                style="width: 100%;height: 100%;padding: 2px;overflow: hidden;"
+                                                v-show="showing" onmousedown="event.stopPropagation()"
+                                                onmouseup="event.stopPropagation()" draggable="false"
+                                                ondragstart="dragCourseStart(this)"
+                                                v-bind:style="{'grid-area': `${c.sb+1} / ${c.day+1} / ${c.eb+1} / ${c.day+1}`}">
+                                                <div style="width: 100%;height: 100%;border-radius: 8px;position: relative;overflow: hidden;"
+                                                    class="clickEffect courseItem"
+                                                    v-bind:style="{'background-color': c.color}">
+                                                    <div
+                                                        style="flex-direction: column;overflow: hidden;padding: 4px;width: 100%;height: 100%;">
+                                                        <p style="font-size: 12px;width: 100%;text-align: center;text-overflow: ellipsis;-webkit-line-clamp: 1;overflow: hidden;flex-shrink: 0;opacity: 0.8;"
+                                                            v-bind:style="{'color': c.textDark}">{{c.teachers}}</p>
+                                                        <div style="font-size: 16px;flex-grow: 1;text-align: center;align-items: center;justify-content: center;text-overflow: ellipsis;font-weight: bold;overflow: hidden;">
+                                                            <p v-bind:style="{'color': c.textDark}">{{c.name}}</p>
+                                                        </div>
+                                                        <p style="font-size: 12px;width: 100%;text-align: center;text-overflow: ellipsis;-webkit-line-clamp: 3;overflow: hidden;flex-shrink: 0;opacity: 0.8;"
+                                                            v-bind:style="{'color': c.textDark}">{{c.places}}</p>
+                                                    </div>
+                                                    <div style="position: absolute;width: 100%;height: 100%;background-color: #FFFFFF80;flex-direction: column;align-items: center;overflow: hidden;"
+                                                        class="menu">
+                                                        <img src="./images/drag.svg" onmouseenter="handlerEnter(this)"
+                                                            onmouseleave="handlerLeave(this)" draggable="false"
+                                                            style="width: 20px;aspect-ratio: 1;cursor: grab;flex-shrink: 0;margin-top: 8px;" />
+                                                        <div
+                                                            style="flex-direction: row;align-items: center;justify-content: center;width: 100%;flex-grow: 1;overflow: hidden;flex-wrap: wrap;">
+                                                            <img src="./images/copy.svg" class="lighten"
+                                                                onclick="copyOrMoveCourse('copy', event)"
+                                                                style="border-radius: 50%;max-height: 16px;aspect-ratio: 1;padding: 8px;margin: 2px;" />
+                                                            <img src="./images/move.svg" class="lighten"
+                                                                onclick="copyOrMoveCourse('move', event)"
+                                                                style="border-radius: 50%;max-height: 16px;aspect-ratio: 1;padding: 8px;margin: 2px;" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- 悬浮加号 -->
+                                        <div style="display: grid;width: 100%;height: 100%;position: absolute;pointer-events: none;z-index: 50;"
+                                            v-bind:style="{'grid-template-rows': 'repeat(' + rowNum + ', 1fr)','grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
+                                            <div v-if="addFloatShow && page.week == showingWeek"
+                                                style="width: 100%;height: 100%;padding: 2px;" v-bind:id="Math.random()"
+                                                v-bind:style="{'grid-area': floatArea}">
+                                                <div class="clickEffect" v-on:click.stop="wantToAddCourse"
+                                                    style="width: 100%;height: 100%;border-radius: 8px;background-color: #0066ff30;align-items: center;justify-content: center;"
+                                                    v-bind:style="{'pointer-events': floatParam == null ? 'none' : 'auto'}">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                        xmlns:xlink="http://www.w3.org/1999/xlink" width="24"
+                                                        height="24" style="width: 50%;aspect-ratio: 1;"
+                                                        viewBox="0 0 24 24" version="1.1">
+                                                        <path fill="#000000"
+                                                            d="M12.75,21.25 C12.75,21.6642136 12.4142136,22 12,22 C11.5857864,22 11.25,21.6642136 11.25,21.25 L11.25,12.75 L2.75,12.75 C2.33578644,12.75 2,12.4142136 2,12 C2,11.5857864 2.33578644,11.25 2.75,11.25 L11.25,11.25 L11.25,2.75 C11.25,2.33578644 11.5857864,2 12,2 C12.4142136,2 12.75,2.33578644 12.75,2.75 L12.75,21.25 Z M21.25,11.25 C21.6642136,11.25 22,11.5857864 22,12 C22,12.4142136 21.6642136,12.75 21.25,12.75 L13.75,12.75 L13.75,11.25 L21.25,11.25 Z" />
+                                                    </svg>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                            <div v-if="nowMethod != null"
+                                style="width: 100%;position: absolute;left: 0;right: 0;bottom: 40px;z-index: 50;align-items: center;justify-content: center;">
+                                <button
+                                    style="padding: 8px 40px;border-radius: 30px;background-color: #dd0000;color: white;border: none;outline: none;box-shadow: 2px 2px 8px #dd000040;"
+                                    class="clickEffect" onclick="cancel()">取消</button>
+                            </div>
+                        </div>
+
+                        <div v-if="nowMethod != null && nowMethod.holdTime"
+                            style="width: 100%;height: 100%;display: grid;position: absolute;grid-template-rows: 1fr;z-index: 30;"
+                            v-bind:style="{'grid-template-columns': `${timeBarWidth} repeat(${columnNum}, 1fr)`}">
+                            <div v-for="i in columnNum" class="weekdayLine"
+                                style="width: 100%;height: 100%;align-items: center;justify-content: center;"
+                                v-bind:style="{'grid-area': `1 / ${i+1} / 1 / ${i+1}`}" v-bind:data-day="i"
+                                onclick="weekdayLineClick(this.dataset.day)">
+                                <img src="./images/drop.svg" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div
+                    style="width: 16px;flex-shrink: 0;margin-left: 8px;margin-right: 4px;align-items: center;justify-content: center;flex-shrink: 0;">
+                    <div style="height: 200px;width: 100%;align-items: center;justify-content: center;background-color: #FFFFFF;border-radius: 8px;"
+                        class="move" v-on:click="moveTab(undefined)">
+                        {{closeTab ? '&lt;' : '&gt;' }}
+                    </div>
+                </div>
+                <div style="width: 50%;overflow: hidden;"
+                    v-bind:style="{'width': (closeTab ? '0' : '50%')}">
+                    <div style="flex-direction: column;min-width: 300px;flex-shrink: 0;flex-grow: 1;">
+                        <div style="flex-shrink: 0;align-items: center;">
+                            <!-- 课表选择 -->
+                            <div style="align-items: center;padding: 6px 16px;border-radius: 30px;background-color: #FFFFFF;width: fit-content;flex-shrink: 0;"
+                                class="clickEffect" v-on:click="openChooseTable">
+                                <p style="color: black;font-size: 14px;user-select: none;">{{courseName}}</p>
+                                <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                                    width="24" height="24" viewBox="0 0 24 12" version="1.1">
+                                    <path
+                                        d="M18.6239478,4.2482689 L13.6439396,9.23007755 C12.97476,9.8992572 11.8984674,9.91319844 11.2123247,9.27190128 L6.21931844,4.28033009 C6.09044543,4.15145707 6.01827654,3.98735263 6.00281177,3.81902041 L6,3.7269699 C6.00562355,3.54277571 6.0787297,3.36025866 6.21931844,3.21966991 C6.50175119,2.93723717 6.95339796,2.92715028 7.24791742,3.18940926 L11.8761727,7.81586399 C12.1586054,8.09829674 12.6102522,8.10838362 12.9047717,7.84612464 L17.5330269,3.21966991 C17.8259202,2.9267767 18.3007939,2.9267767 18.5936871,3.21966991 C18.7349035,3.36088629 18.8080334,3.54440617 18.8130768,3.72943689 L18.8129192,3.77570243 C18.8071403,3.94528507 18.7441498,4.11328081 18.6239478,4.2482689 Z"
+                                        fill="black" />
+                                </svg>
+                            </div>
+                            <svg style="margin-left: 8px;" width="24" height="24" class="clickEffect"
+                                v-on:click="toSetting" viewBox="0 0 24 24" version="1.1">
+                                <path
+                                    d="M13.4894964,1.25 C14.1901033,1.25 14.8231865,1.66785112 15.0986042,2.31205231 L15.0986042,2.31205231 L15.92125,4.23625 L16.77175,4.72725 L18.8556101,4.47607817 C19.5285537,4.39491431 20.1856012,4.70961774 20.5451004,5.27951678 L20.5451004,5.27951678 L20.5800481,5.33735213 L22.0680131,7.91013134 C22.4194652,8.51781272 22.3737758,9.27669833 21.9519545,9.83782407 L21.9519545,9.83782407 L20.69375,11.51125 L20.69375,12.4885 L21.9519801,14.16219 C22.3597241,14.70461 22.4160026,15.4318142 22.1018413,16.0285992 L22.1018413,16.0285992 L22.0680196,16.0898574 L20.5800481,18.6626479 C20.2293867,19.2689622 19.5509852,19.6077912 18.8556101,19.5239218 L18.8556101,19.5239218 L16.77175,19.2725 L15.92125,19.7635 L15.0986042,21.6879477 C14.832071,22.3113682 14.2305752,22.7228063 13.5570765,22.748702 L13.5570765,22.748702 L13.4894964,22.75 L10.5105451,22.75 C9.80990141,22.75 9.17679241,22.3321056 8.90139751,21.6878548 L8.90139751,21.6878548 L8.0785,19.7635 L7.228,19.2725 L5.14438986,19.5239218 C4.47144629,19.6050857 3.81439883,19.2903823 3.45489956,18.7204832 L3.45489956,18.7204832 L3.41995189,18.6626479 L1.9319804,16.0898574 C1.58053408,15.482186 1.62621577,14.7233142 2.04801988,14.16219 L2.04801988,14.16219 L3.306,12.4885 L3.306,11.51125 L2.04804545,9.83782407 C1.64028496,9.29540252 1.58399872,8.56818536 1.89816473,7.97139057 L1.89816473,7.97139057 L1.93198692,7.91013134 L3.41995189,5.33735213 C3.77061333,4.73103782 4.44901483,4.39220884 5.14438986,4.47607817 L5.14438986,4.47607817 L7.228,4.72725 L8.0785,4.23625 L8.90139751,2.31214525 C9.1679087,1.68867667 9.7694279,1.27719647 10.4429614,1.25129813 L10.4429614,1.25129813 L10.5105451,1.25 Z M13.4894964,2.75 L10.5105451,2.75 C10.4104531,2.75 10.320009,2.8096992 10.2806668,2.90173504 L10.2806668,2.90173504 L9.42547944,4.90233575 C9.31921851,5.1509195 9.13523096,5.35835416 8.90110986,5.49353025 L8.90110986,5.49353025 L7.90597116,6.06810022 C7.67169142,6.20336791 7.39985123,6.25898058 7.13127161,6.22658714 L7.13127161,6.22658714 L4.96477622,5.96528566 C4.86543693,5.95330433 4.76852243,6.00170847 4.71842794,6.0883248 L4.71842794,6.0883248 L3.23046296,8.66110401 C3.18025552,8.74791564 3.18678258,8.85632787 3.24704275,8.93648869 L3.24704275,8.93648869 L4.55532037,10.6768191 C4.71812619,10.8933908 4.80615731,11.1569971 4.80615595,11.4279382 L4.80615595,11.4279382 L4.80615019,12.5719965 C4.80614882,12.8429255 4.71812287,13.1065199 4.55532821,13.3230849 L4.55532821,13.3230849 L3.24703351,15.0635037 C3.18677578,15.1436643 3.18024983,15.2520745 3.23045644,15.3388847 L3.23045644,15.3388847 L4.71842794,17.9116752 C4.76852243,17.9982915 4.86543693,18.0466957 4.96477622,18.0347143 L4.96477622,18.0347143 L7.13127161,17.7734129 C7.39985123,17.7410194 7.67169142,17.7966321 7.90597116,17.9318998 L7.90597116,17.9318998 L8.90110986,18.5064697 C9.13523096,18.6416458 9.31921851,18.8490805 9.42547944,19.0976643 L9.42547944,19.0976643 L10.2806668,21.098265 C10.320009,21.1903008 10.4104531,21.25 10.5105451,21.25 L10.5105451,21.25 L13.4894964,21.25 C13.5895831,21.25 13.6800236,21.190307 13.7193689,21.0982782 L13.7193689,21.0982782 L14.5747715,19.097494 C14.6810343,18.8489455 14.8650036,18.6415401 15.0990951,18.506376 L15.0990951,18.506376 L16.0940158,17.9319104 C16.3282993,17.7966355 16.6001464,17.7410191 16.8687329,17.7734134 L16.8687329,17.7734134 L19.0352238,18.0347143 C19.1345631,18.0466957 19.2314776,17.9982915 19.2815721,17.9116752 L19.2815721,17.9116752 L20.7695436,15.3388847 C20.8197502,15.2520745 20.8132242,15.1436643 20.7529665,15.0635037 L20.7529665,15.0635037 L19.4446718,13.3230849 C19.2818771,13.1065199 19.1938512,12.8429255 19.1938498,12.5719965 L19.1938498,12.5719965 L19.1938441,11.4279382 C19.1938427,11.1569971 19.2818738,10.8933908 19.4446796,10.6768191 L19.4446796,10.6768191 L20.7529572,8.93648869 C20.8132174,8.85632787 20.8197445,8.74791564 20.769537,8.66110401 L20.769537,8.66110401 L19.2815721,6.0883248 C19.2314776,6.00170847 19.1345631,5.95330433 19.0352238,5.96528566 L19.0352238,5.96528566 L16.8687329,6.2265866 C16.6001464,6.25898087 16.3282993,6.2033645 16.0940158,6.06808955 L16.0940158,6.06808955 L15.0990951,5.49362397 C14.8650036,5.3584599 14.6810343,5.15105452 14.5747715,4.90250599 L14.5747715,4.90250599 L13.7193689,2.90172176 C13.6800236,2.80969302 13.5895831,2.75 13.4894964,2.75 L13.4894964,2.75 Z M12,7.5 C14.4852814,7.5 16.5,9.51471863 16.5,12 C16.5,14.4852814 14.4852814,16.5 12,16.5 C9.51471863,16.5 7.5,14.4852814 7.5,12 C7.5,9.51471863 9.51471863,7.5 12,7.5 Z M12,9 C10.3431458,9 9,10.3431458 9,12 C9,13.6568542 10.3431458,15 12,15 C13.6568542,15 15,13.6568542 15,12 C15,10.3431458 13.6568542,9 12,9 Z"
+                                    fill="black" />
+                            </svg>
+                            <div style="flex-grow: 1;min-width: 8px;flex-shrink: 0;"></div>
+
+                            <!-- 二维码生成 -->
+                            <img src="./images/qrcode.svg" title="qrcode" class="clickEffect" v-on:click="createQrCode"
+                                v-if="courseName != null" />
+                            <div style="width: 8px;flex-shrink: 0;" v-if="courseName != null"></div>
+                            <!-- 上传课程表 -->
+                            <input type="file" style="display: none;" id="selectFile" oninput="uploadCourse(event)" />
+                            <div style="padding: 6px 16px;background-color: #0066ff;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
+                                class="clickEffect" onclick="document.getElementById('selectFile').click()">上传课程表</div>
+                            <div style="width: 8px;flex-shrink: 0;"></div>
+                            <!-- 下载课程表 -->
+                            <div style="padding: 6px 16px;background-color: #0066ff;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
+                                class="clickEffect" v-on:click="downloadCourse" v-if="courseName != null">下载课程表</div>
+                            <div style="width: 8px;flex-shrink: 0;" v-if="courseName != null"></div>
+                            <!-- 华为登录按钮 -->
+                            <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
+                                class="clickEffect" v-on:click="openPlatformChooseDialog(0)">从云备份中获取</div>
+                            <div style="width: 8px;flex-shrink: 0;"></div>
+                            <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
+                                class="clickEffect" v-on:click="openPlatformChooseDialog(1)">上传至云备份</div>
+                        </div>
+                        <div style="margin-top: 8px;width: 100%;flex-grow: 1;padding: 16px;border-radius: 16px;flex-direction: column;min-height: min-content;flex-shrink: 0;"
+                            v-bind:style="{'background-color': backgroundImg != null ? '#FFFFFF50' : '#FFFFFF' }">
+                            <div style="align-items: center;margin: 8px 0;">
+                                <p style="width: 200px;flex-shrink: 0;">课程名称</p>
+                                <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemName"
+                                    v-on:input="changeItem('itemName', $event)"
+                                    v-bind:style="{'background-color': itemNameValid ? '#80808020' : '#ff000020'}" />
+                            </div>
+                            <div style="align-items: center;margin: 8px 0;">
+                                <p style="width: 200px;flex-shrink: 0;">上课星期</p>
+                                <p v-for="(day, i) in dayName"
+                                    style="flex-grow: 1;margin: 0 8px;padding: 4px 8px;border-radius: 30px;text-align: center;font-size: 12px;"
+                                    class="clickEffect"
+                                    v-bind:style="{'background-color': (i == itemDay ? '#0066ff30' : '#80808020')}"
+                                    v-on:click="changeItemDay(i)">周{{day}}</p>
+                            </div>
+                            <div style="align-items: center;margin: 8px 0;">
+                                <p style="width: 200px;flex-shrink: 0;">上课时间</p>
+                                <input type="time" min="00:00" max="23:59" step="300" pattern="\d{2}:\d{2}"
+                                    style="margin-left: 0;text-align: center;font-weight: bold;"
+                                    v-bind:value="itemStart" v-on:input="changeItem('itemStart', $event)"
+                                    v-bind:style="{'background-color': itemStartValid ? '#80808020' : '#ff000020'}" />
+                            </div>
+                            <div style="align-items: center;margin: 8px 0;">
+                                <p style="width: 200px;flex-shrink: 0;">上课时长</p>
+                                <input type="time" min="00:00" max="23:59" step="300" pattern="\d{2}:\d{2}"
+                                    style="margin-left: 0;text-align: center;font-weight: bold;" v-bind:value="itemLast"
+                                    v-on:input="changeItem('itemLast', $event)"
+                                    v-bind:style="{'background-color': itemLastValid ? '#80808020' : '#ff000020'}" />
+                            </div>
+                            <p style="font-size: 10px;opacity: 0.7;margin-bottom: 8px;">注意：上课时间+上课时长就等于下课时间噢</p>
+                            <div style="align-items: center;margin: 8px 0;">
+                                <p style="width: 200px;flex-shrink: 0;">上课周次</p>
+                                <input style="margin-left: 0;" placeholder="请输入上课周次" v-bind:value="itemWeek" type="text"
+                                    v-on:input="changeItem('itemWeek', $event)"
+                                    pattern="^\[?(\d+([-——]\d+[单双]?)?([ ,，、]\d+([-——]\d+[单双]?)?)*)?\]?$"
+                                    v-bind:style="{'background-color': itemWeekValid ? '#80808020' : '#ff000020'}" />
+                            </div>
+                            <p style="font-size: 10px;opacity: 0.7;margin-bottom: 8px;">
+                                上课周次输入规则<br>[1]表示第一周上课<br>[1-6]表示第一周到第六周都上<br>[1-6双]表示第一周到第六周的双周都上<br>你可以把他们组合起来如：[1,2-6,8-14单]表示第一周、第二周到第六周、第八周到第十四周的单周都上
+                            </p>
+                            <div style="align-items: center;margin: 8px 0;">
+                                <p style="width: 200px;flex-shrink: 0;">上课教师</p>
+                                <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemTeacher"
+                                    v-on:input="changeItem('itemTeacher', $event)" />
+                            </div>
+                            <div style="align-items: center;margin: 8px 0;">
+                                <p style="width: 200px;flex-shrink: 0;">上课地点</p>
+                                <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemPlace"
+                                    v-on:input="changeItem('itemPlace', $event)" />
+                            </div>
+                            <p style="align-items: center;margin: 8px 0;border-radius: 30px;background-color: #0066ff;text-align: center;padding: 8px;color: white;"
+                                v-if="nowEdit == null" class="clickEffect" v-on:click="addCourse">
+                                完成
+                            </p>
+                            <div style="align-items: center;margin: 8px 0;" v-else>
+                                <p style="align-items: center;border-radius: 30px;background-color: #0066ff;text-align: center;padding: 8px;color: white;flex-grow: 1;"
+                                    class="clickEffect" v-on:click="saveCourse"
+                                    v-bind:style="{'opacity': saveAble ? 1 : 0.5, 'pointer-events': saveAble ? 'auto' : 'none'}">
+                                    保存
+                                </p>
+                                <div style="width: 16px;flex-shrink: 0;"></div>
+                                <p style="align-items: center;border-radius: 30px;background-color: #dd0000;text-align: center;padding: 8px;color: white;flex-grow: 1;"
+                                    class="clickEffect" v-on:click="deleteCourse">
+                                    删除
+                                </p>
+                            </div>
+
                         </div>
                     </div>
                 </div>
             </div>
-            <div style="width: 8px;flex-shrink: 0;"></div>
-            <div style="width: 50%;flex-direction: column;">
-                <div style="flex-shrink: 0;width: 100%;align-items: center;">
-                    <!-- 课表选择 -->
-                    <div style="align-items: center;padding: 6px 16px;border-radius: 30px;background-color: #FFFFFF;width: fit-content;flex-shrink: 0;"
-                        class="clickEffect" v-on:click="openChooseTable">
-                        <p style="color: black;font-size: 14px;user-select: none;">{{courseName}}</p>
-                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24"
-                            height="24" viewBox="0 0 24 12" version="1.1">
-                            <path
-                                d="M18.6239478,4.2482689 L13.6439396,9.23007755 C12.97476,9.8992572 11.8984674,9.91319844 11.2123247,9.27190128 L6.21931844,4.28033009 C6.09044543,4.15145707 6.01827654,3.98735263 6.00281177,3.81902041 L6,3.7269699 C6.00562355,3.54277571 6.0787297,3.36025866 6.21931844,3.21966991 C6.50175119,2.93723717 6.95339796,2.92715028 7.24791742,3.18940926 L11.8761727,7.81586399 C12.1586054,8.09829674 12.6102522,8.10838362 12.9047717,7.84612464 L17.5330269,3.21966991 C17.8259202,2.9267767 18.3007939,2.9267767 18.5936871,3.21966991 C18.7349035,3.36088629 18.8080334,3.54440617 18.8130768,3.72943689 L18.8129192,3.77570243 C18.8071403,3.94528507 18.7441498,4.11328081 18.6239478,4.2482689 Z"
-                                fill="black" />
-                        </svg>
-                    </div>
-                    <svg style="margin-left: 8px;" width="24" height="24" class="clickEffect" v-on:click="toSetting"
-                        viewBox="0 0 24 24" version="1.1">
-                        <path
-                            d="M13.4894964,1.25 C14.1901033,1.25 14.8231865,1.66785112 15.0986042,2.31205231 L15.0986042,2.31205231 L15.92125,4.23625 L16.77175,4.72725 L18.8556101,4.47607817 C19.5285537,4.39491431 20.1856012,4.70961774 20.5451004,5.27951678 L20.5451004,5.27951678 L20.5800481,5.33735213 L22.0680131,7.91013134 C22.4194652,8.51781272 22.3737758,9.27669833 21.9519545,9.83782407 L21.9519545,9.83782407 L20.69375,11.51125 L20.69375,12.4885 L21.9519801,14.16219 C22.3597241,14.70461 22.4160026,15.4318142 22.1018413,16.0285992 L22.1018413,16.0285992 L22.0680196,16.0898574 L20.5800481,18.6626479 C20.2293867,19.2689622 19.5509852,19.6077912 18.8556101,19.5239218 L18.8556101,19.5239218 L16.77175,19.2725 L15.92125,19.7635 L15.0986042,21.6879477 C14.832071,22.3113682 14.2305752,22.7228063 13.5570765,22.748702 L13.5570765,22.748702 L13.4894964,22.75 L10.5105451,22.75 C9.80990141,22.75 9.17679241,22.3321056 8.90139751,21.6878548 L8.90139751,21.6878548 L8.0785,19.7635 L7.228,19.2725 L5.14438986,19.5239218 C4.47144629,19.6050857 3.81439883,19.2903823 3.45489956,18.7204832 L3.45489956,18.7204832 L3.41995189,18.6626479 L1.9319804,16.0898574 C1.58053408,15.482186 1.62621577,14.7233142 2.04801988,14.16219 L2.04801988,14.16219 L3.306,12.4885 L3.306,11.51125 L2.04804545,9.83782407 C1.64028496,9.29540252 1.58399872,8.56818536 1.89816473,7.97139057 L1.89816473,7.97139057 L1.93198692,7.91013134 L3.41995189,5.33735213 C3.77061333,4.73103782 4.44901483,4.39220884 5.14438986,4.47607817 L5.14438986,4.47607817 L7.228,4.72725 L8.0785,4.23625 L8.90139751,2.31214525 C9.1679087,1.68867667 9.7694279,1.27719647 10.4429614,1.25129813 L10.4429614,1.25129813 L10.5105451,1.25 Z M13.4894964,2.75 L10.5105451,2.75 C10.4104531,2.75 10.320009,2.8096992 10.2806668,2.90173504 L10.2806668,2.90173504 L9.42547944,4.90233575 C9.31921851,5.1509195 9.13523096,5.35835416 8.90110986,5.49353025 L8.90110986,5.49353025 L7.90597116,6.06810022 C7.67169142,6.20336791 7.39985123,6.25898058 7.13127161,6.22658714 L7.13127161,6.22658714 L4.96477622,5.96528566 C4.86543693,5.95330433 4.76852243,6.00170847 4.71842794,6.0883248 L4.71842794,6.0883248 L3.23046296,8.66110401 C3.18025552,8.74791564 3.18678258,8.85632787 3.24704275,8.93648869 L3.24704275,8.93648869 L4.55532037,10.6768191 C4.71812619,10.8933908 4.80615731,11.1569971 4.80615595,11.4279382 L4.80615595,11.4279382 L4.80615019,12.5719965 C4.80614882,12.8429255 4.71812287,13.1065199 4.55532821,13.3230849 L4.55532821,13.3230849 L3.24703351,15.0635037 C3.18677578,15.1436643 3.18024983,15.2520745 3.23045644,15.3388847 L3.23045644,15.3388847 L4.71842794,17.9116752 C4.76852243,17.9982915 4.86543693,18.0466957 4.96477622,18.0347143 L4.96477622,18.0347143 L7.13127161,17.7734129 C7.39985123,17.7410194 7.67169142,17.7966321 7.90597116,17.9318998 L7.90597116,17.9318998 L8.90110986,18.5064697 C9.13523096,18.6416458 9.31921851,18.8490805 9.42547944,19.0976643 L9.42547944,19.0976643 L10.2806668,21.098265 C10.320009,21.1903008 10.4104531,21.25 10.5105451,21.25 L10.5105451,21.25 L13.4894964,21.25 C13.5895831,21.25 13.6800236,21.190307 13.7193689,21.0982782 L13.7193689,21.0982782 L14.5747715,19.097494 C14.6810343,18.8489455 14.8650036,18.6415401 15.0990951,18.506376 L15.0990951,18.506376 L16.0940158,17.9319104 C16.3282993,17.7966355 16.6001464,17.7410191 16.8687329,17.7734134 L16.8687329,17.7734134 L19.0352238,18.0347143 C19.1345631,18.0466957 19.2314776,17.9982915 19.2815721,17.9116752 L19.2815721,17.9116752 L20.7695436,15.3388847 C20.8197502,15.2520745 20.8132242,15.1436643 20.7529665,15.0635037 L20.7529665,15.0635037 L19.4446718,13.3230849 C19.2818771,13.1065199 19.1938512,12.8429255 19.1938498,12.5719965 L19.1938498,12.5719965 L19.1938441,11.4279382 C19.1938427,11.1569971 19.2818738,10.8933908 19.4446796,10.6768191 L19.4446796,10.6768191 L20.7529572,8.93648869 C20.8132174,8.85632787 20.8197445,8.74791564 20.769537,8.66110401 L20.769537,8.66110401 L19.2815721,6.0883248 C19.2314776,6.00170847 19.1345631,5.95330433 19.0352238,5.96528566 L19.0352238,5.96528566 L16.8687329,6.2265866 C16.6001464,6.25898087 16.3282993,6.2033645 16.0940158,6.06808955 L16.0940158,6.06808955 L15.0990951,5.49362397 C14.8650036,5.3584599 14.6810343,5.15105452 14.5747715,4.90250599 L14.5747715,4.90250599 L13.7193689,2.90172176 C13.6800236,2.80969302 13.5895831,2.75 13.4894964,2.75 L13.4894964,2.75 Z M12,7.5 C14.4852814,7.5 16.5,9.51471863 16.5,12 C16.5,14.4852814 14.4852814,16.5 12,16.5 C9.51471863,16.5 7.5,14.4852814 7.5,12 C7.5,9.51471863 9.51471863,7.5 12,7.5 Z M12,9 C10.3431458,9 9,10.3431458 9,12 C9,13.6568542 10.3431458,15 12,15 C13.6568542,15 15,13.6568542 15,12 C15,10.3431458 13.6568542,9 12,9 Z"
-                            fill="black" />
-                    </svg>
-                    <div style="flex-grow: 1;min-width: 8px;flex-shrink: 0;"></div>
-                    <!-- 华为登录按钮 -->
-                    <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
-                        class="clickEffect" v-on:click="openPlatformChooseDialog(0)">从云备份中获取</div>
-                    <div style="width: 8px;flex-shrink: 0;"></div>
-                    <div style="padding: 6px 16px;background-color: red;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
-                        class="clickEffect" v-on:click="openPlatformChooseDialog(1)">上传至云备份</div>
-                </div>
-                <div
-                    style="margin-top: 8px;width: 100%;flex-grow: 1;padding: 16px;border-radius: 16px;background-color: #FFFFFF;flex-direction: column;min-height: min-content;flex-shrink: 0;">
-                    <div style="align-items: center;margin: 8px 0;">
-                        <p style="width: 200px;flex-shrink: 0;">课程名称</p>
-                        <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemName"
-                            v-on:input="changeItem('itemName', $event)"
-                            v-bind:style="{'background-color': itemNameValid ? '#80808020' : '#ff000020'}" />
-                    </div>
-                    <div style="align-items: center;margin: 8px 0;">
-                        <p style="width: 200px;flex-shrink: 0;">上课星期</p>
-                        <p v-for="(day, i) in dayName"
-                            style="flex-grow: 1;margin: 0 8px;padding: 4px 8px;border-radius: 30px;text-align: center;font-size: 12px;"
-                            class="clickEffect"
-                            v-bind:style="{'background-color': (i == itemDay ? '#0066ff30' : '#80808020')}"
-                            v-on:click="changeItemDay(i)">周{{day}}</p>
-                    </div>
-                    <div style="align-items: center;margin: 8px 0;">
-                        <p style="width: 200px;flex-shrink: 0;">上课时间</p>
-                        <input type="time" min="00:00" max="23:59" step="300" pattern="\d{2}:\d{2}"
-                            style="margin-left: 0;text-align: center;font-weight: bold;" v-bind:value="itemStart"
-                            v-on:input="changeItem('itemStart', $event)"
-                            v-bind:style="{'background-color': itemStartValid ? '#80808020' : '#ff000020'}" />
-                    </div>
-                    <div style="align-items: center;margin: 8px 0;">
-                        <p style="width: 200px;flex-shrink: 0;">上课时长</p>
-                        <input type="time" min="00:00" max="23:59" step="300" pattern="\d{2}:\d{2}"
-                            style="margin-left: 0;text-align: center;font-weight: bold;" v-bind:value="itemLast"
-                            v-on:input="changeItem('itemLast', $event)"
-                            v-bind:style="{'background-color': itemLastValid ? '#80808020' : '#ff000020'}" />
-                    </div>
-                    <p style="font-size: 10px;opacity: 0.7;margin-bottom: 8px;">注意：上课时间+上课时长就等于下课时间噢</p>
-                    <div style="align-items: center;margin: 8px 0;">
-                        <p style="width: 200px;flex-shrink: 0;">上课周次</p>
-                        <input style="margin-left: 0;" placeholder="请输入上课周次" v-bind:value="itemWeek" type="text"
-                            v-on:input="changeItem('itemWeek', $event)"
-                            pattern="^\[?(\d+([-——]\d+[单双]?)?([ ,，、]\d+([-——]\d+[单双]?)?)*)?\]?$"
-                            v-bind:style="{'background-color': itemWeekValid ? '#80808020' : '#ff000020'}" />
-                    </div>
-                    <p style="font-size: 10px;opacity: 0.7;margin-bottom: 8px;">
-                        上课周次输入规则<br>[1]表示第一周上课<br>[1-6]表示第一周到第六周都上<br>[1-6双]表示第一周到第六周的双周都上<br>你可以把他们组合起来如：[1,2-6,8-14单]表示第一周、第二周到第六周、第八周到第十四周的单周都上
-                    </p>
-                    <div style="align-items: center;margin: 8px 0;">
-                        <p style="width: 200px;flex-shrink: 0;">上课教师</p>
-                        <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemTeacher"
-                            v-on:input="changeItem('itemTeacher', $event)" />
-                    </div>
-                    <div style="align-items: center;margin: 8px 0;">
-                        <p style="width: 200px;flex-shrink: 0;">上课地点</p>
-                        <input style="margin-left: 0;" placeholder="请输入课程名称" v-bind:value="itemPlace"
-                            v-on:input="changeItem('itemPlace', $event)" />
-                    </div>
-                    <p style="align-items: center;margin: 8px 0;border-radius: 30px;background-color: #0066ff;text-align: center;padding: 8px;color: white;"
-                        v-if="nowEdit == null" class="clickEffect" v-on:click="addCourse">
-                        完成
-                    </p>
-                    <div style="align-items: center;margin: 8px 0;" v-else>
-                        <p style="align-items: center;border-radius: 30px;background-color: #0066ff;text-align: center;padding: 8px;color: white;flex-grow: 1;"
-                            class="clickEffect" v-on:click="saveCourse"
-                            v-bind:style="{'opacity': saveAble ? 1 : 0.5, 'pointer-events': saveAble ? 'auto' : 'none'}">
-                            保存
-                        </p>
-                        <div style="width: 16px;flex-shrink: 0;"></div>
-                        <p style="align-items: center;border-radius: 30px;background-color: #dd0000;text-align: center;padding: 8px;color: white;flex-grow: 1;"
-                            class="clickEffect" v-on:click="deleteCourse">
-                            删除
-                        </p>
-                    </div>
-
-                </div>
-            </div>
         </div>
+
 
         <dialog id="selectTable"
             style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
-            <div style="width: 500px;max-width: 300px;height: 300px;flex-direction: column;">
-                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">请选择课程表</p>
+            <div style="width: 500px;max-width: 300px;height: 250px;flex-direction: column;">
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">请选择课程表
+                </p>
                 <div style="flex-grow: 1;width: 100%;flex-direction: column;overflow-y: auto;overflow-x: hidden;">
                     <div v-for="name in courseNames" class="clickEffect"
-                        style="width: 100%;padding: 12px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 12px;"
+                        style="width: 100%;padding: 6px 16px;align-items: center;justify-content: center;margin: 4px 0;background-color: #80808020;border-radius: 30px;font-size: 12px;"
                         v-on:click="selectTable(name)">
                         <p style="flex-grow: 1;text-align: center;">{{name}}</p>
-                        <svg width="24" height="24" style="flex-shrink: 0;transform: scale(0.75)" class="clickEffect" v-on:click="deleteTable(name)">
+                        <svg width="24" height="24" style="flex-shrink: 0;transform: scale(0.75)" class="clickEffect"
+                            v-on:click="deleteTable(name)">
                             <path
-                                d="M19.7781746,4.22182541 C20.0710678,4.51471863 20.0710678,4.98959236 19.7781746,5.28248558 L5.28248558,19.7781746 C4.98959236,20.0710678 4.51471863,20.0710678 4.22182541,19.7781746 C3.92893219,19.4852814 3.92893219,19.0104076 4.22182541,18.7175144 L10.9395166,11.9994697 L4.22182541,5.28248558 C3.92893219,4.98959236 3.92893219,4.51471863 4.22182541,4.22182541 C4.51471863,3.92893219 4.98959236,3.92893219 5.28248558,4.22182541 L12,10.9389863 L18.7175144,4.22182541 C19.0104076,3.92893219 19.4852814,3.92893219 19.7781746,4.22182541 Z M19.7781746,18.7175144 C20.0710678,19.0104076 20.0710678,19.4852814 19.7781746,19.7781746 C19.4852814,20.0710678 19.0104076,20.0710678 18.7175144,19.7781746 L12.7072836,13.7675902 L13.767767,12.7071068 L19.7781746,18.7175144 Z"
-                                />
+                                d="M19.7781746,4.22182541 C20.0710678,4.51471863 20.0710678,4.98959236 19.7781746,5.28248558 L5.28248558,19.7781746 C4.98959236,20.0710678 4.51471863,20.0710678 4.22182541,19.7781746 C3.92893219,19.4852814 3.92893219,19.0104076 4.22182541,18.7175144 L10.9395166,11.9994697 L4.22182541,5.28248558 C3.92893219,4.98959236 3.92893219,4.51471863 4.22182541,4.22182541 C4.51471863,3.92893219 4.98959236,3.92893219 5.28248558,4.22182541 L12,10.9389863 L18.7175144,4.22182541 C19.0104076,3.92893219 19.4852814,3.92893219 19.7781746,4.22182541 Z M19.7781746,18.7175144 C20.0710678,19.0104076 20.0710678,19.4852814 19.7781746,19.7781746 C19.4852814,20.0710678 19.0104076,20.0710678 18.7175144,19.7781746 L12.7072836,13.7675902 L13.767767,12.7071068 L19.7781746,18.7175144 Z" />
                         </svg>
                     </div>
                 </div>
                 <div class="clickEffect"
-                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
+                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 6px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;"
                     v-on:click="closeSelectTable">取消</div>
                 <div class="clickEffect"
-                    style="border-radius: 30px;background-color: #0066ff;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 16px;"
+                    style="border-radius: 30px;background-color: #0066ff;color: white;padding: 6px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 8px;"
                     v-on:click="createTable">新建课程表</div>
             </div>
         </dialog>
@@ -250,7 +351,8 @@
         <dialog id="PlatformChooseDialog"
             style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
             <div style="width: 500px;max-width: 300px;height: 200px;flex-direction: column;">
-                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">请选择云空间数据归属
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">
+                    请选择云空间数据归属
                 </p>
                 <div style="flex-grow: 1;width: 100%;flex-direction: column;overflow-y: auto;overflow-x: hidden;">
                     <div class="clickEffect"
@@ -313,7 +415,8 @@
         <dialog id="NewTableDialog"
             style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
             <div style="width: 500px;max-width: 300px;flex-direction: column;">
-                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">新建课程表</p>
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">新建课程表
+                </p>
                 <div style="align-items: center;margin: 4px 0;">
                     <p>名称</p>
                     <input placeholder="请输入课程表名称" v-bind:value="newCourseName" />
@@ -323,7 +426,8 @@
                     <input placeholder="请输入开学日期" v-bind:value="newCourseDate" v-on:input="newCourseDateChange" />
                 </div>
                 <p style="font-size: 12px;opacity: 0.7;">开学日期为第一周周一或周日：XXXX-XX-XX</p>
-                <p style="font-size: 10px;" v-bind:style="{'color': dateError ? 'red' : 'black'}" v-if="dateError">请注意格式
+                <p style="font-size: 10px;" v-bind:style="{'color': dateError ? 'red' : 'black'}" v-if="dateError">
+                    请注意格式
                 </p>
                 <div class="clickEffect"
                     style="border-radius: 30px;background-color: #0066ff;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 16px;"
@@ -333,9 +437,29 @@
                     v-on:click="closeNewTableDialog">取消</div>
             </div>
         </dialog>
+
+        <dialog id="qrcodeDialog"
+            style="background-color: #FFFFFF;outline: none;border: none;padding: 16px;border-radius: 16px;box-shadow: 4px 4px 10px 0 #00000030;">
+            <div style="width: 500px;max-width: 400px;flex-direction: column;align-items: center;">
+                <p style="font-size: 16px;width: 100%;margin-bottom: 8px;flex-shrink: 0;text-align: center;">
+                    请在华为手机桌面下滑使用智慧搜索扫码</p>
+                <div id="qrcode" style="height: 400px;width: 400px;"></div>
+                <div class="clickEffect"
+                    style="border-radius: 30px;background-color: #dd0000;color: white;padding: 12px 16px;border: none;text-align: center;width: 100%;align-items: center;justify-content: center;flex-shrink: 0;font-size: 16px;margin-top: 16px;"
+                    v-on:click="closeQrcodeDialog">关闭</div>
+            </div>
+        </dialog>
     </div>
+
+
 </body>
 <script>
+    let tc = window.localStorage.getItem('textColor')
+    document.body.style.setProperty('--textColor', tc == null ? '#000000' : tc)
+
+    var $this = null
+    var $utils = null
+
     var platFormIsApp = true
     const decode = function (str) {
         let strData = atob(str);
@@ -350,6 +474,13 @@
 
     const encode = function (str) {
         return btoa(pako.gzip(encodeURIComponent(str), { to: 'string' }))
+    }
+
+    const hexEncode = function (buffer) {
+        const map = '0123456789ABCDEF'
+        return Array.from(buffer).map(byte => {
+            return map[byte >> 4] + map[byte & 0x0F]
+        }).join('')
     }
 
     const weekCombine = function (Week) {
@@ -451,28 +582,426 @@
         return arr.length - 1
     }
 </script>
-<script type="module">
-    import * as utils from './utils.js'
-    import { TimeTable } from './TimeTable.js'
-    import { TimeCombine } from './TimeCombine.js'
-    import { SwiperManager } from './Swiper.js'
+<script>
     var loadTime = null
     var timeCombine = null
-
-    var storage = utils.getStorage({
-        priority: ['indexeddb'],
-        name: 'Course'
-    })
-    var set_storage = utils.getStorage({
-        priority: ['indexeddb'],
-        name: 'Set'
-    })
-
     var dayToCol = [0, 1, 2, 3, 4, 5, 6]
     var showWeekend = true
     var swiperManager = null
     var touchParam = null
     var touchingTimer = null
+    var storage = null, set_storage = null
+
+    function itemClick(ele) {
+        const dataset = ele.dataset
+        const day = dataset.day
+        const p = dataset.p.split(',')
+        const e = event
+
+        if (e) e.stopPropagation()
+        $this.addFloatShow = false
+        $this.floatParam = null
+
+        if ($this.showingParam == null || $this.showingParam[0] != day || $this.showingParam[1].toString() != p.toString()) {
+            $this.nowEdit = [day, p[0]]
+            $this.showingParam = [day, p, 0]
+        } else {
+            $this.showingParam[2]++
+            $this.showingParam[2] %= p.length
+            $this.nowEdit[1] = p[$this.showingParam[2]]
+        }
+
+        let course = $this.courses.courses[$this.nowEdit[0]][$this.nowEdit[1]]
+        $this.itemName = course.name
+        $this.itemNameValid = true
+        $this.itemStart = course.s
+        $this.itemLast = course.l
+        $this.itemWeek = course.week.join(',')
+        $this.itemTeacher = course.teacher || ''
+        $this.itemPlace = course.place || ''
+        $this.itemLock = course.lock || false
+        $this.itemDay = day
+
+        $this.moveTab(false)
+    }
+
+    function touchSurfaceStart() {
+        const e = event
+
+        console.log('touch')
+        let x = e.offsetX, y = e.offsetY
+        let w = e.currentTarget.clientWidth, h = e.currentTarget.clientHeight
+        let bh = h / $this.rowNum
+        if (x < $utils.px2num($this.timeBarWidth)) return;
+        let day = ((x - $utils.px2num($this.timeBarWidth)) * 7 / (w - $utils.px2num($this.timeBarWidth))) | 0
+        let block = 1
+        while (block + 1 < loadTime.getBlockLength() + 1 && y > loadTime.countBlock(block + 1) * bh) {
+            block++
+        }
+        touchParam = {
+            day: day,
+            sBlock: block,
+            eBlock: block,
+            x: x, y: y
+        }
+        let u = Math.min(touchParam.sBlock, touchParam.eBlock)
+        let d = Math.max(touchParam.sBlock, touchParam.eBlock)
+        $this.floatArea = `${loadTime.countBlock(u) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(d) + 1} / ${touchParam.day + 2}`
+
+        $this.addFloatShow = false
+        $this.floatParam = null
+        touchingTimer = setTimeout(() => {
+            touchingTimer = null
+            $this.addFloatShow = true
+            $this.showing = false
+            $this.swiper.disableTouchControl()
+            Toast.show('移动鼠标选取节次', 1000)
+        }, 300)
+    }
+    function touchSurfaceMove() {
+        const e = event
+
+        if (touchParam == null) return;
+        let x = e.offsetX, y = e.offsetY
+        let w = e.currentTarget.clientWidth, h = e.currentTarget.clientHeight
+        let bh = h / $this.rowNum
+        let day = ((x - $utils.px2num($this.timeBarWidth)) * 7 / (w - $utils.px2num($this.timeBarWidth))) | 0
+        let dist = Math.sqrt((x - touchParam.x) ** 2 + (y - touchParam.y) ** 2)
+        if (touchingTimer != null && dist > 3) {
+            clearTimeout(touchingTimer)
+            touchingTimer = null
+            $this.swiper.enableTouchControl()
+            $this.showing = true
+            return;
+        }
+        let block = 1
+        while (block + 1 < loadTime.getBlockLength() + 1 && y > loadTime.countBlock(block + 1) * bh) {
+            block++
+        }
+        touchParam.eBlock = block
+        let u = Math.min(touchParam.sBlock, touchParam.eBlock)
+        let d = Math.max(touchParam.sBlock, touchParam.eBlock)
+        $this.floatArea = `${loadTime.countBlock(u) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(d) + 1} / ${touchParam.day + 2}`
+    }
+    function touchSurfaceEnd() {
+        const e = event
+
+        console.log('touchEnd')
+        if (touchingTimer != null) {
+            clearInterval(touchingTimer)
+            touchingTimer = null
+            $this.swiper.enableTouchControl()
+            if (touchParam != null && touchParam.sBlock == touchParam.eBlock) {
+                if ($this.nowMethod) {
+                    copyOrMove($this.nowMethod.all, $this.nowMethod.type, $this.nowMethod.data.day, $this.nowMethod.data.block, $this.nowMethod.data.week,
+                        $this.nowMethod.data.p, touchParam.day, touchParam.sBlock, $this.showingWeek, $this.nowMethod.holdTime)
+                    $this.save()
+                    cancel()
+                    return;
+                }
+                $this.addFloatShow = true
+                $this.floatArea = `${loadTime.countBlock(touchParam.sBlock) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(touchParam.sBlock) + 1} / ${touchParam.day + 2}`
+            }
+        }
+        if ($this.addFloatShow) {
+            $this.floatParam = touchParam
+            $this.wantToAddCourse()
+            $this.moveTab(false)
+        }
+        touchParam = null
+        $this.showing = true
+    }
+
+    function getRelativePosition(element, event) {
+        return {
+            x: event.pageX - $(element).offset().left,
+            y: event.pageY - $(element).offset().top
+        }
+    }
+
+    function dragCourseStart() {
+        const e = event
+
+        e.dataTransfer.dropEffect = 'move';
+        e.dataTransfer.setData('application/course', JSON.stringify({
+            day: parseInt(e.currentTarget.dataset.day),
+            p: e.currentTarget.dataset.p.split(',')
+        }))
+        let ele = document.querySelectorAll('#courseBg')[$this.swiper.activeIndex]
+        let mp = getRelativePosition(ele, event)
+        let { x, y } = mp
+        let w = $(ele).width(), h = $(ele).height()
+        let bh = h / $this.rowNum
+        let block = 1
+        while (block + 1 < loadTime.getBlockLength() + 1 && y > loadTime.countBlock(block + 1) * bh) {
+            block++
+        }
+        e.dataTransfer.setData('mouse/block', block)
+        e.dataTransfer.setData('mouse/position', JSON.stringify(mp))
+
+        $this.itemName = ''
+        $this.itemTeacher = ''
+        $this.itemPlace = ''
+        $this.itemWeek = ''
+        $this.nowEdit = null
+        $this.addFloatShow = false
+        $this.floatArea = null
+    }
+
+    function removeWeek(weeks, week) {
+        if (!(weeks instanceof Array)) return;
+        let nweeks = []
+        weeks.forEach(w => {
+            if (typeof w == 'number') w = String(w)
+            let t = w.split('-')
+            let s = parseInt(t[0]), e = parseInt(t[t.length - 1])
+            if (week >= s && week <= e) {
+                if (s <= week - 1) nweeks.push(s == week - 1 ? String(s) : String(s) + '-' + String(week - 1))
+                if (e >= week + 1) nweeks.push(e == week + 1 ? String(e) : String(week + 1) + '-' + String(e))
+            } else {
+                nweeks.push(w)
+            }
+        })
+        return nweeks
+    }
+
+    function dropCourse(e) {
+        console.log(e)
+        e.preventDefault()
+
+        let data = JSON.parse(e.dataTransfer.getData('application/course'))
+        let p = data.p.map(v => { return parseInt(v) }).sort().reverse()
+        let pd = data.day
+
+        let originalBlock = JSON.parse(e.dataTransfer.getData('mouse/block'))
+        console.log(data, originalBlock)
+
+        let mp = JSON.parse(e.dataTransfer.getData('mouse/position'))
+
+        let w = e.currentTarget.clientWidth, h = e.currentTarget.clientHeight
+        let bh = h / $this.rowNum
+        let bw = (w - $utils.px2num($this.timeBarWidth)) / 7
+
+        let centerX = $utils.px2num($this.timeBarWidth) + (pd + 0.5) * bw, centerY = (loadTime.countBlock(originalBlock) + loadTime.countBlockAtEnd(originalBlock)) * bh / 2
+        let fixOffsetX = centerX - mp.x, fixOffsetY = centerY - mp.y
+
+        let x = e.offsetX + fixOffsetX, y = e.offsetY + fixOffsetY
+        if (x < $utils.px2num($this.timeBarWidth)) return;
+        let day = ((x - $utils.px2num($this.timeBarWidth)) * 7 / (w - $utils.px2num($this.timeBarWidth))) | 0
+        let block = 1
+        while (block + 1 < loadTime.getBlockLength() + 1 && y > loadTime.countBlock(block + 1) * bh) {
+            block++
+        }
+
+        if (pd == day && block == originalBlock) return;
+
+        var isMoving = confirm('是否仅移动课程（否则复制课程）？')
+        var isAll = confirm(`是否${isMoving ? '移动' : '复制'}所有周次（否则${isMoving ? '移动' : '复制'}单节）？`)
+
+        console.log('new', day, block)
+
+        copyOrMove(isAll, isMoving ? 'move' : 'copy', pd, originalBlock, $this.showingWeek, p, day, block, $this.showingWeek, false)
+        $this.save()
+    }
+
+    function handlerEnter(element) {
+        element.parentElement.parentElement.parentElement.setAttribute('draggable', 'true')
+    }
+
+    function handlerLeave(element) {
+        element.parentElement.parentElement.parentElement.setAttribute('draggable', 'false')
+    }
+
+    function copyOrMoveCourse(type, e) {
+        e.stopPropagation()
+        let isAll = confirm(`是否${type == 'move' ? '移动' : '复制'}全部周次（否则${type == 'move' ? '移动' : '复制'}单节）？`)
+
+        let ele = document.querySelectorAll('#courseBg')[$this.swiper.activeIndex]
+        let mp = getRelativePosition(ele, event)
+        let { x, y } = mp
+        let w = $(ele).width(), h = $(ele).height()
+        let bh = h / $this.rowNum
+        let block = 1
+        while (block + 1 < loadTime.getBlockLength() + 1 && y > loadTime.countBlock(block + 1) * bh) {
+            block++
+        }
+
+        $this.showing = false
+        $this.nowMethod = {
+            type: type,
+            all: isAll,
+            data: {
+                day: parseInt(e.currentTarget.parentElement.parentElement.parentElement.parentElement.dataset.day),
+                block: block,
+                week: $this.showingWeek,
+                p: e.currentTarget.parentElement.parentElement.parentElement.parentElement.dataset.p.split(',')
+            },
+            holdTime: false
+        }
+        Toast.show(`选择你要${type == 'move' ? '移动' : '复制'}到的星期`)
+    }
+
+    function copyOrMoveDay(type, e) {
+        e.stopPropagation()
+        let isAll = confirm(`是否${type == 'move' ? '移动' : '复制'}全部周次（否则${type == 'move' ? '移动' : '复制'}单节）？`)
+
+        let day = parseInt(e.currentTarget.parentElement.parentElement.parentElement.dataset.day)
+        let p = []
+        $this.courses.courses[day].forEach((c, i) => {
+            if ($utils.CheckWeek(c.week, $this.showingWeek)) {
+                p.push(i)
+            }
+        })
+        p.sort().reverse()
+
+        $this.showing = false
+        $this.nowMethod = {
+            type: type,
+            all: isAll,
+            data: {
+                day: day,
+                block: null,
+                week: $this.showingWeek,
+                p: p
+            },
+            holdTime: true
+        }
+        Toast.show(`选择你要${type == 'move' ? '移动' : '复制'}到的位置`)
+    }
+
+    function weekdayLineClick(day) {
+        day = parseInt(day) - 1
+        console.log($this.nowMethod)
+
+        copyOrMove($this.nowMethod.all, $this.nowMethod.type, $this.nowMethod.data.day, null, $this.nowMethod.data.week, $this.nowMethod.data.p, day, null, $this.showingWeek, $this.nowMethod.holdTime)
+        cancel()
+        $this.save()
+    }
+
+    function cancel() {
+        $this.nowMethod = null
+        $this.showing = true
+    }
+
+    function copyOrMove(isAll, type, fromDay, fromBlock, fromWeek, p, toDay, toBlock, toWeek, holdTime) {
+        let courses = []
+        p.forEach(i => {
+            let course = $this.courses.courses[fromDay][parseInt(i)]
+            courses.push(course)
+            if (course.week.length == 0 && !isAll) {
+                cancel()
+                alert('当前课程没有周次信息，无法单节移动')
+                throw ('当前课程没有周次信息，无法单节移动')
+                return;
+            }
+        })
+        if (type == 'move') {
+            p.forEach(i => {
+                if (isAll) {
+                    $this.courses.courses[fromDay].splice(i, 1)
+                } else {
+                    let c = $this.courses.courses[fromDay][i]
+                    c.week = removeWeek(c.week, fromWeek)
+                    if (c.week.length == 0) {
+                        $this.courses.courses[fromDay].splice(i, 1)
+                    }
+                }
+            })
+        }
+
+        courses.forEach(course => {
+            console.log(course)
+            let s = $utils.time2num_float(course.s)
+            let l = $utils.time2num_float(course.l)
+
+            let blockRate = [], len = loadTime.getBlockLength() + 1
+            for (let i = 1; i < len; i++) {
+                let s_ = Math.max(s, loadTime.getStartV(i))
+                let e_ = Math.min(s + l, loadTime.getStartV(i) + loadTime.getLastV(i))
+                blockRate.push((e_ - s_) / loadTime.getLastV(i))
+            }
+            let sb = -1, eb = -1
+            blockRate.forEach((v, i) => {
+                if (v >= 0.5) {
+                    if (sb == -1) sb = i + 1
+                    eb = i + 1
+                }
+            })
+            console.log('old', sb, eb)
+            console.log('new', toBlock + sb - fromBlock, toBlock + eb - fromBlock)
+            let newOne = {}
+            if (!holdTime) {
+                newOne.s = loadTime.getStart(toBlock + sb - fromBlock)
+                newOne.l = $utils.num2time_float(loadTime.getStartV(toBlock + eb - fromBlock) - loadTime.getStartV(toBlock + sb - fromBlock) + loadTime.getLastV(toBlock + eb - fromBlock))
+            }
+            if (!isAll) {
+                newOne.week = [String(toWeek)]
+            }
+            push($this.courses.courses[toDay], { ...course, ...newOne }, (c1, c2) => {
+                return $utils.time2num(c1.s) - $utils.time2num(c2.s)
+            })
+        })
+    }
+
+    function uploadCourse(e) {
+        console.log(e)
+        let files = e.currentTarget.files
+        if (files.length > 0) {
+            let reader = new FileReader()
+            reader.readAsText(files[0])
+            reader.onload = () => {
+                let text = reader.result
+                try {
+                    let coursesTable = JSON.parse(text)
+                    let name = coursesTable.name
+                    storage.keys().then(keys => {
+                        while (keys.indexOf(name) != -1) {
+                            let cover = confirm('当前名称课程表已存在，是否覆盖？')
+                            if (!cover) {
+                                name = prompt('请输入新的课程表名称', name)
+                                if (name == null || name == '') {
+                                    return;
+                                }
+                                continue
+                            } else {
+                                break;
+                            }
+                        }
+                        coursesTable.name = name
+                        let data = encode(JSON.stringify(coursesTable))
+                        storage.set(coursesTable.name, data).then(() => {
+                            set_storage.set('nCourse', coursesTable.name).then(() => {
+                                window.location.reload()
+                            })
+                        })
+                    })
+                } catch (e) {
+                    console.error(e)
+                    Toast.show('文件格式异常')
+                }
+            }
+        }
+    }
+
+</script>
+<script type="module">
+    import * as utils from './utils.js'
+    import { TimeTable } from './TimeTable.js'
+    import { TimeCombine } from './TimeCombine.js'
+    import { SwiperManager } from './Swiper.js'
+
+    $utils = utils
+
+    storage = utils.getStorage({
+        priority: ['indexeddb'],
+        name: 'Course'
+    })
+    set_storage = utils.getStorage({
+        priority: ['indexeddb'],
+        name: 'Set'
+    })
+
+
     var vm = new Vue({
         el: '#app',
         data: {
@@ -529,14 +1058,23 @@
 
             nowEdit: null,
             showingParam: null,
-            saveAble: false
+            saveAble: false,
+
+            closeTab: true,
+            nowMethod: null,
+
+            backgroundImg: null
         },
         async created() {
+            $this = this
+            this.backgroundImg = window.localStorage.getItem('backgroundImg')
             setTimeout(() => {
                 let self = this
                 self.swiper = new Swiper('.swiper-container', {
                     loop: true,
                     mousewheelControl: true,
+                    updateOnWindowResize: false,
+                    preventClicks: false,
                     onSlideChangeEnd(swiper) {
                         let nowIndex = swiper.realIndex
                         let a = swiper.activeIndex
@@ -557,6 +1095,24 @@
             }
             await this.readCourse()
             this.loadCourse()
+
+            new ResizeObserver(() => {
+                if (this.swiper) {
+                    this.swiper.onResize()
+                }
+            }).observe(document.getElementById('observeTarget'))
+
+            this.closeTab = window.localStorage.closeTab == null ? false : window.localStorage.closeTab == 'true'
+
+            const update = function () {
+                this.$nextTick(() => {
+                    $this.swiper.reLoop()
+                })
+            }
+            this.$watch('addFloatShow', update)
+            this.$watch('floatArea', update)
+            this.$watch('showing', update)
+            this.$watch('pages', update)
         },
         methods: {
             async loadSetting() {
@@ -595,7 +1151,8 @@
                 console.log('init:' + idx)
                 let res = {
                     weekdayShow: [],
-                    courses: []
+                    courses: [],
+                    week: -1
                 }
                 res.weekdayShow = this.buildWeekdayShow(idx)
                 res.courses = this.GetBlockCourse(idx)
@@ -881,6 +1438,7 @@
                     this.$nextTick(() => {
                         this.swiper.update()
                         this.swiper.reLoop()
+                        this.swiper.slideTo(swiperManager.current[1] + 1)
                     })
                 }
             },
@@ -893,102 +1451,6 @@
                     swiperManager.scrollTo(this.realWeek, true)
                     swiperView.fadeIn(300)
                 })
-            },
-            touchSurfaceStart(e) {
-                console.log('touch')
-                let x = e.offsetX, y = e.offsetY
-                let w = e.target.clientWidth, h = e.target.clientHeight
-                let bh = h / this.rowNum
-                if (x < utils.px2num(this.timeBarWidth)) return;
-                let day = ((x - utils.px2num(this.timeBarWidth)) * 7 / (w - utils.px2num(this.timeBarWidth))) | 0
-                let block = 1
-                while (block + 1 < loadTime.getBlockLength() + 1 && y > loadTime.countBlock(block + 1) * bh) {
-                    block++
-                }
-                touchParam = {
-                    day: day,
-                    sBlock: block,
-                    eBlock: block,
-                    x: x, y: y
-                }
-                let u = Math.min(touchParam.sBlock, touchParam.eBlock)
-                let d = Math.max(touchParam.sBlock, touchParam.eBlock)
-                this.floatArea = `${loadTime.countBlock(u) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(d) + 1} / ${touchParam.day + 2}`
-
-                this.addFloatShow = false
-                this.floatParam = null
-                touchingTimer = setTimeout(() => {
-                    touchingTimer = null
-                    this.addFloatShow = true
-                    this.showing = false
-                    this.swiper.disableTouchControl()
-                }, 300)
-            },
-            touchSurfaceMove(e) {
-                if (touchParam == null) return;
-                let x = e.offsetX, y = e.offsetY
-                let w = e.target.clientWidth, h = e.target.clientHeight
-                let bh = h / this.rowNum
-                let day = ((x - utils.px2num(this.timeBarWidth)) * 7 / (w - utils.px2num(this.timeBarWidth))) | 0
-                let dist = Math.sqrt((x - touchParam.x) ** 2 + (y - touchParam.y) ** 2)
-                if (touchingTimer != null && dist > 3) {
-                    clearTimeout(touchingTimer)
-                    touchingTimer = null
-                    this.swiper.enableTouchControl()
-                    this.showing = true
-                    return;
-                }
-                let block = 1
-                while (block + 1 < loadTime.getBlockLength() + 1 && y > loadTime.countBlock(block + 1) * bh) {
-                    block++
-                }
-                touchParam.eBlock = block
-                let u = Math.min(touchParam.sBlock, touchParam.eBlock)
-                let d = Math.max(touchParam.sBlock, touchParam.eBlock)
-                this.floatArea = `${loadTime.countBlock(u) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(d) + 1} / ${touchParam.day + 2}`
-            },
-            touchSurfaceEnd(e) {
-                console.log('touchEnd')
-                if (touchingTimer != null) {
-                    clearInterval(touchingTimer)
-                    touchingTimer = null
-                    this.swiper.enableTouchControl()
-                    if (touchParam != null && touchParam.sBlock == touchParam.eBlock) {
-                        this.addFloatShow = true
-                        this.floatArea = `${loadTime.countBlock(touchParam.sBlock) + 1} / ${touchParam.day + 2} / ${loadTime.countBlockAtEnd(touchParam.sBlock) + 1} / ${touchParam.day + 2}`
-                    }
-                }
-                if (this.addFloatShow) {
-                    this.floatParam = touchParam
-                    this.wantToAddCourse()
-                }
-                touchParam = null
-                this.showing = true
-            },
-            itemClick(day, p, e) {
-                if (e) e.stopPropagation()
-                this.addFloatShow = false
-                this.floatParam = null
-
-                if (this.showingParam == null || this.showingParam[0] != day || this.showingParam[1].toString() != p.toString()) {
-                    this.nowEdit = [day, p[0]]
-                    this.showingParam = [day, p, 0]
-                } else {
-                    this.showingParam[2]++
-                    this.showingParam[2] %= p.length
-                    this.nowEdit[1] = p[this.showingParam[2]]
-                }
-
-                let course = this.courses.courses[this.nowEdit[0]][this.nowEdit[1]]
-                this.itemName = course.name
-                this.itemNameValid = true
-                this.itemStart = course.s
-                this.itemLast = course.l
-                this.itemWeek = course.week.join(',')
-                this.itemTeacher = course.teacher || ''
-                this.itemPlace = course.place || ''
-                this.itemLock = course.lock || false
-                this.itemDay = day
             },
             closeSelectTable() {
                 console.log('closeDialog')
@@ -1252,7 +1714,13 @@
                 if (this.itemNameValid & this.itemStartValid & this.itemLastValid & this.itemWeekValid) {
                     let weeks = getWeek(this.itemWeek)
                     if (typeof weeks == 'string') {
-                        alert(weeks)
+                        Toast.show(weeks)
+                        return;
+                    }
+                    let sv = utils.time2num_float(this.itemStart)
+                    let lv = utils.time2num_float(this.itemLast)
+                    if (sv + lv > 24) {
+                        Toast.show('该课程时长已超过24点')
                         return;
                     }
                     let p = push(this.courses.courses[this.itemDay], {
@@ -1279,6 +1747,12 @@
                 let weeks = getWeek(this.itemWeek)
                 if (typeof weeks == 'string') {
                     alert(weeks)
+                    return;
+                }
+                let sv = utils.time2num_float(this.itemStart)
+                let lv = utils.time2num_float(this.itemLast)
+                if (sv + lv > 24) {
+                    Toast.show('该课程时长已超过24点')
                     return;
                 }
                 let original = this.courses.courses[this.nowEdit[0]][this.nowEdit[1]]
@@ -1331,6 +1805,42 @@
                     }
                 }
                 document.getElementById('selectTable').close()
+            },
+            downloadCourse(e) {
+                const file = new File([JSON.stringify(this.courses)], this.courseName + '.cos', {
+                    type: 'text/plain'
+                })
+                const url = URL.createObjectURL(file)
+                let a = document.createElement('a')
+                a.href = url
+                a.download = this.courseName + '.cos'
+                a.style = 'display: none'
+                document.body.appendChild(a)
+                a.click()
+                document.body.removeChild(a)
+                Toast.show('创建下载中...', 500)
+            },
+            createQrCode() {
+                let data = hexEncode(pako.deflate(JSON.stringify(this.courses)))
+                let str = 'onecourse://com.example.course/scan?type=course&data=' + data
+                document.getElementById('qrcodeDialog').showModal()
+                $('#qrcode')[0].innerHTML = ''
+                $('#qrcode').qrcode({
+                    text: str,
+                    width: 400,
+                    height: 400
+                })
+            },
+            closeQrcodeDialog() {
+                document.getElementById('qrcodeDialog').close()
+            },
+            moveTab(state) {
+                if (state == undefined) {
+                    this.closeTab = !this.closeTab
+                } else if (state != this.closeTab) {
+                    this.closeTab = state
+                }
+                window.localStorage.setItem('closeTab', this.closeTab)
             }
         }
     })
@@ -1358,6 +1868,9 @@
     p {
         padding: 0;
         margin: 0;
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        color: var(--textColor)
     }
 
     .select {
@@ -1383,7 +1896,7 @@
     }
 
     .clickEffect:active {
-        transform: scale(0.9);
+        transform: scale(0.95);
     }
 
     input {
@@ -1394,6 +1907,47 @@
         background-color: #80808020;
         flex-grow: 1;
         margin-left: 16px;
+    }
+
+    .move {
+        opacity: 0.5;
+        transition-duration: 300ms;
+    }
+
+    .move:hover {
+        opacity: 1;
+    }
+
+    .courseItem>.menu,
+    .weekItem>.menu {
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 300ms;
+    }
+
+    .courseItem:hover>.menu,
+    .weekItem:hover>.menu {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    .lighten {
+        background-color: #FFFFFF40;
+        transition: background-color 300ms;
+    }
+
+    .lighten:hover {
+        background-color: #FFFFFF80;
+    }
+
+    .weekdayLine {
+        background-color: #0066ff80;
+        opacity: 0;
+        transition: opacity 300ms;
+    }
+
+    .weekdayLine:hover {
+        opacity: 1;
     }
 </style>
 

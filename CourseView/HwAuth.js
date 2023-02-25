@@ -37,7 +37,7 @@ const checkAccessTokenAndStorage = function (token, checkStorage, callback) {
 }
 
 const getAccessToken = function (isApp, callback) {
-    let refresh_token = $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService')
+    let refresh_token = window.localStorage.getItem(isApp ? 'RefreshToken' : 'RefreshTokenService')
     if (refresh_token == undefined) {
         LoginCallback = (obj) => {
             LoginCallback = null
@@ -89,7 +89,7 @@ const getAccessToken = function (isApp, callback) {
 }
 
 const checkCloud = function (isApp, callback, checkStorage=true) {
-    let token = $.cookie(isApp ? 'AuthToken' : 'AuthTokenService')
+    let token = window.localStorage.getItem(isApp ? 'AuthToken' : 'AuthTokenService')
     if (token != undefined) {
         checkAccessTokenAndStorage(token, checkStorage, (res) => {
             if (res.code == 0) {
@@ -97,8 +97,8 @@ const checkCloud = function (isApp, callback, checkStorage=true) {
             } else if (res.error === '登录过期') {
                 getAccessToken(isApp, (data) => {
                     if (data.code === 0) {
-                        $.cookie(isApp ? 'AuthToken' : 'AuthTokenService', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
-                        $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService', data.refresh_token, { expires: 180 })
+                        window.localStorage.setItem(isApp ? 'AuthToken' : 'AuthTokenService', data.access_token)
+                        window.localStorage.setItem(isApp ? 'RefreshToken' : 'RefreshTokenService', data.refresh_token)
                         checkAccessTokenAndStorage(data.access_token, checkStorage, (res) => {
                             if (res.code == 0) {
                                 callback({ code: 0 })
@@ -115,8 +115,8 @@ const checkCloud = function (isApp, callback, checkStorage=true) {
     } else {
         getAccessToken(isApp, (data) => {
             if (data.code === 0) {
-                $.cookie(isApp ? 'AuthToken' : 'AuthTokenService', data.access_token, { expires: new Date(new Date().getTime() + 60 * 60 * 1000) })
-                $.cookie(isApp ? 'RefreshToken' : 'RefreshTokenService', data.refresh_token, { expires: 180 })
+                window.localStorage.setItem(isApp ? 'AuthToken' : 'AuthTokenService', data.access_token)
+                window.localStorage.setItem(isApp ? 'RefreshToken' : 'RefreshTokenService', data.refresh_token)
                 checkAccessTokenAndStorage(data.access_token, checkStorage, (res) => {
                     if (res.code == 0) {
                         callback({ code: 0 })
@@ -142,7 +142,7 @@ const randomString = function (len) {
 }
 
 const Hw_uploadToCloud = function (isApp, items, callback) {
-    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenService')
+    let token = isApp ? window.localStorage.getItem('AuthToken') : window.localStorage.getItem('AuthTokenService')
     let promises = []
     Hw_getFilesFromCloud(isApp, 'Course', (cloudCourses) => {
         let nameToId = {}
@@ -200,7 +200,7 @@ const Hw_uploadToCloud = function (isApp, items, callback) {
 }
 
 const Hw_getFilesFromCloud = function (isApp, prefix, callback) {
-    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenService')
+    let token = isApp ? window.localStorage.getItem('AuthToken') : window.localStorage.getItem('AuthTokenService')
     $.ajax({
         url: 'https://driveapis.cloud.huawei.com.cn/drive/v1/files?fields=*&containers=applicationData',
         contentType: 'application/json',
@@ -231,7 +231,7 @@ const Hw_getFilesFromCloud = function (isApp, prefix, callback) {
 }
 
 const Hw_loadFile = function (isApp, link, callback) {
-    let token = isApp ? $.cookie('AuthToken') : $.cookie('AuthTokenService')
+    let token = isApp ? window.localStorage.getItem('AuthToken') : window.localStorage.getItem('AuthTokenService')
     $.ajax({
         url: link,
         contentType: 'application/json',

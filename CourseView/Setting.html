@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>一课表设置中心</title>
+    <link href="./images/icon.ico" rel="icon" />
 </head>
 <script src="https://cdn.bootcss.com/crypto-js/3.1.9-1/crypto-js.min.js"></script>
 <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
@@ -28,18 +29,29 @@
                 class="clickEffect" v-on:click="openPlatformChooseDialog">从云备份中获取设置数据</div>
         </div>
 
-        <div style="flex-grow: 1;width: 100%;margin-top: 8px;">
+        <div style="flex-grow: 1;width: 100%;margin-top: 8px;overflow: hidden;">
             <div style="flex-direction: column;width: calc(30% - 4px);">
                 <div style="align-items: center;" class="setting_item">
                     <p>显示周末</p>
                     <input type="checkbox" v-on:change="showWeekendChange" v-bind:checked="showWeekend" />
+                </div>
+                <div style="align-items: center;" class="setting_item">
+                    <p>显示背景</p>
+                    <input type="checkbox" v-on:change="backgroundChange" v-bind:checked="showBackgroungImg" />
+                    <input type="file" v-on:input="selectImage(event)" style="display: none;" accept="image/*" id="imageSelect"/>
+                </div>
+                <div style="align-items: center;" class="setting_item">
+                    <p>文本颜色</p>
+                    <div style="width: 50px;border-radius: 30px;height: 24px"
+                    v-bind:style="{'background-color': textColor}" onclick="this.nextElementSibling.click()" class="clickEffect"></div> 
+                    <input type="color" v-bind:value="textColor" style="width: 0;height: 0;padding: 0;visibility: hidden;" v-on:input="textColorChange(event)" v-on:change="saveTextColor"/>
                 </div>
             </div>
 
             <div style="width: 8px;flex-shrink: 0;"></div>
 
             <div
-                style="flex-direction: column;width: calc(70% - 4px);border-radius: 8px;background-color: #FFFFFF;padding: 16px;">
+                style="flex-direction: column;width: calc(70% - 4px);border-radius: 8px;background-color: #FFFFFF;padding: 16px;overflow: hidden;">
                 <p style="font-size: 20px;margin-bottom: 8px;">时间表设置</p>
                 <div style="width: 100%;align-items: center;">
                     <div
@@ -123,10 +135,12 @@
                         </div>
 
                     </div>
-                    <p class="clickEffect"
-                        style="padding: 12px;border-radius: 30px;outline: none;background-color: #0066ff;color: white;border: none;text-align: center;margin-top: 16px;" v-on:click="addTime">
-                        添加节次</p>
+                    
                 </div>
+                <p class="clickEffect"
+                    style="padding: 12px;border-radius: 30px;outline: none;background-color: #0066ff;color: white;border: none;text-align: center;margin-top: 16px;"
+                    v-on:click="addTime">
+                    添加节次</p>
             </div>
         </div>
 
@@ -191,6 +205,9 @@
         el: '#app',
         data: {
             showWeekend: true,
+            showBackgroungImg: false,
+            textColor: '#000000',
+
             timeTable: {},
             timeShowing: [],
             timeCombine: { combine: [] },
@@ -203,6 +220,11 @@
         async created() {
             let _showWeekend = (await set_storage.get('showWeekend')).showWeekend
             this.showWeekend = _showWeekend != undefined ? _showWeekend : true
+            let img = window.localStorage.getItem('backgroundImg')
+            this.showBackgroungImg = img != null
+            let tc = window.localStorage.getItem('textColor')
+            this.textColor = tc == null ? '#000000' : tc
+
             let TimeTables = await time_storage.keys()
 
             let defaultUid = await set_storage.get('nowTimeTableUID').nowTimeTableUID
@@ -401,6 +423,52 @@
                 this.timeShowing = this.timeTable.buildTimeShowing()
                 this.timeCombine.fixTimeCombine(this.timeTable.getBlockLength() + 1)
                 this.save()
+            },
+            backgroundChange(e) {
+                let checked = e.currentTarget.checked
+                if (checked) {
+                    let useUrl = confirm('是否使用网络图片（否则使用本地图片）？')
+                    let url = ''
+                    if (useUrl) {
+                        url = prompt('输入图片url')
+                        if (url == null || url == '') {
+                            e.currentTarget.setAttribute('checked', 'false')
+                            return;
+                        }
+                        this.confirmImage(url)
+                    } else {
+                        document.getElementById('imageSelect').click()
+                    }
+                } else {
+                    window.localStorage.removeItem('backgroundImg')
+                    this.showBackgroungImg = false
+                }
+            },
+            selectImage(e) {
+                let files = e.currentTarget.files
+                if (files.length == 0) {
+                    e.currentTarget.previousElementSibling.setAttribute('checked', 'false')
+                } else {
+                    let reader = new FileReader()
+                    reader.readAsBinaryString(files[0])
+                    reader.onload = () => {
+                        let buffer = reader.result
+                        let url = "data:" + files[0].type + ";base64," + btoa(buffer);
+                        this.confirmImage(url)
+                    }
+                }
+            },
+            confirmImage(url) {
+                this.showBackgroungImg = true
+                console.log(url)
+                window.localStorage.setItem('backgroundImg', url)
+            },
+            textColorChange(e) {
+                this.textColor = e.currentTarget.value
+            },
+            saveTextColor(e) {
+                this.textColor = e.currentTarget.value
+                window.localStorage.setItem('textColor', this.textColor)
             }
         }
     })
@@ -463,6 +531,7 @@
         padding: 8px 16px;
         border-radius: 30px;
         background-color: #FFFFFF;
+        margin: 4px 0;
     }
 
     .setting_item>p {
