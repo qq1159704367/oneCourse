@@ -231,6 +231,10 @@
                             <img src="./images/qrcode.svg" title="qrcode" class="clickEffect" v-on:click="createQrCode"
                                 v-if="courseName != null" />
                             <div style="width: 8px;flex-shrink: 0;" v-if="courseName != null"></div>
+                            <!-- 教务导入 -->
+                            <div style="padding: 6px 16px;background-color: #0066ff;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
+                                class="clickEffect" onclick="window.location.href = 'https://gitee.com/ffffffds/htmlcourse/blob/master/download.md'">教务</div>
+                            <div style="width: 8px;flex-shrink: 0;"></div>
                             <!-- 上传课程表 -->
                             <input type="file" style="display: none;" id="selectFile" oninput="uploadCourse(event)" />
                             <div style="padding: 6px 16px;background-color: #0066ff;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
@@ -403,7 +407,7 @@
                     <div v-for="(item, idx) in weekChooseDialog_items"
                         style="width: 80px;padding: 8px 16px;align-items: center;justify-content: center;margin: 4px 8px;background-color: #0066ff;border-radius: 30px;font-size: 12px;color: white;"
                         class="clickEffect" v-on:click="toWeek(idx)">
-                        <p>{{item.week}}</p>
+                        <p style="color: white">{{item.week}}</p>
                     </div>
                 </div>
                 <div class="clickEffect"
@@ -954,6 +958,21 @@
                 try {
                     let coursesTable = JSON.parse(text)
                     let name = coursesTable.name
+                    
+                    coursesTable.courses.forEach(day => {
+                        day.forEach(c => {
+                            if (c.index != undefined) {
+                                c.s = loadTime.getStart(c.index)
+                            }
+                            if (c.last != undefined) {
+                                c.l = $utils.num2time_float(loadTime.getStartV(c.index + c.last - 1) - loadTime.getStartV(c.index) + loadTime.getLastV(c.index + c.last))
+                            }
+                            delete c.index
+                            delete c.last
+                        })
+                    })
+                    console.log(coursesTable)
+
                     storage.keys().then(keys => {
                         while (keys.indexOf(name) != -1) {
                             let cover = confirm('当前名称课程表已存在，是否覆盖？')

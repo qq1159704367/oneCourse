@@ -42,7 +42,7 @@
                 </div>
                 <div style="align-items: center;" class="setting_item">
                     <p>文本颜色</p>
-                    <div style="width: 50px;border-radius: 30px;height: 24px"
+                    <div style="width: 50px;border-radius: 30px;height: 24px;border: 1px solid black"
                     v-bind:style="{'background-color': textColor}" onclick="this.nextElementSibling.click()" class="clickEffect"></div> 
                     <input type="color" v-bind:value="textColor" style="width: 0;height: 0;padding: 0;visibility: hidden;" v-on:input="textColorChange(event)" v-on:change="saveTextColor"/>
                 </div>
