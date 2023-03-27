@@ -1,3 +1,4 @@
 {
-    "livePreview.defaultPreviewPath": "/CourseView/index.html"
+  "livePreview.defaultPreviewPath": "/CourseView/index.html",
+  "liveServer.settings.port": 5502
 }

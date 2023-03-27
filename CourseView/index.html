@@ -15,6 +15,8 @@
 <script src="./HwAuth.js"></script>
 <script src="https://cdn.bootcdn.net/ajax/libs/jquery.qrcode/1.0/jquery.qrcode.min.js"></script>
 <script src="./Toast.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jszip/3.6.0/jszip.min.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 
 <body style="background-color: #F0F0F0;">
     <div id="app" style="width: 100%;height: 100%;position: relative;">
@@ -28,7 +30,8 @@
                     v-bind:style="{width: (closeTab ? 'calc(100% - 24px)' : '50%')}">
                     <!-- 周次栏 -->
                     <div style="width: 100%;align-items: center;flex-direction: column;">
-                        <p style="font-size: 14px;font-weight: bold;" class="clickEffect" v-on:click="openWeekChooseDialog">第
+                        <p style="font-size: 14px;font-weight: bold;" class="clickEffect"
+                            v-on:click="openWeekChooseDialog">第
                             {{showingWeek}}
                             周</p>
                         <p style="font-size: 12px;height: 8px;color: #0066ff;transform: scale(0.7);text-shadow: white 0 0 5px"
@@ -129,7 +132,8 @@
                                                         style="flex-direction: column;overflow: hidden;padding: 4px;width: 100%;height: 100%;">
                                                         <p style="font-size: 12px;width: 100%;text-align: center;text-overflow: ellipsis;-webkit-line-clamp: 1;overflow: hidden;flex-shrink: 0;opacity: 0.8;"
                                                             v-bind:style="{'color': c.textDark}">{{c.teachers}}</p>
-                                                        <div style="font-size: 16px;flex-grow: 1;text-align: center;align-items: center;justify-content: center;text-overflow: ellipsis;font-weight: bold;overflow: hidden;">
+                                                        <div
+                                                            style="font-size: 16px;flex-grow: 1;text-align: center;align-items: center;justify-content: center;text-overflow: ellipsis;font-weight: bold;overflow: hidden;">
                                                             <p v-bind:style="{'color': c.textDark}">{{c.name}}</p>
                                                         </div>
                                                         <p style="font-size: 12px;width: 100%;text-align: center;text-overflow: ellipsis;-webkit-line-clamp: 3;overflow: hidden;flex-shrink: 0;opacity: 0.8;"
@@ -204,8 +208,7 @@
                         {{closeTab ? '&lt;' : '&gt;' }}
                     </div>
                 </div>
-                <div style="width: 50%;overflow: hidden;"
-                    v-bind:style="{'width': (closeTab ? '0' : '50%')}">
+                <div style="width: 50%;overflow: hidden;" v-bind:style="{'width': (closeTab ? '0' : '50%')}">
                     <div style="flex-direction: column;min-width: 300px;flex-shrink: 0;flex-grow: 1;">
                         <div style="flex-shrink: 0;align-items: center;">
                             <!-- 课表选择 -->
@@ -233,7 +236,9 @@
                             <div style="width: 8px;flex-shrink: 0;" v-if="courseName != null"></div>
                             <!-- 教务导入 -->
                             <div style="padding: 6px 16px;background-color: #0066ff;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
-                                class="clickEffect" onclick="window.location.href = 'https://gitee.com/ffffffds/htmlcourse/blob/master/download.md'">教务</div>
+                                class="clickEffect"
+                                onclick="window.location.href = 'https\:\/\/gitee.com/ffffffds/htmlcourse/blob/master/download.md'">
+                                教务导入</div>
                             <div style="width: 8px;flex-shrink: 0;"></div>
                             <!-- 上传课程表 -->
                             <input type="file" style="display: none;" id="selectFile" oninput="uploadCourse(event)" />
@@ -304,7 +309,7 @@
                             </div>
                             <p style="align-items: center;margin: 8px 0;border-radius: 30px;background-color: #0066ff;text-align: center;padding: 8px;color: white;"
                                 v-if="nowEdit == null" class="clickEffect" v-on:click="addCourse">
-                                完成
+                                添加
                             </p>
                             <div style="align-items: center;margin: 8px 0;" v-else>
                                 <p style="align-items: center;border-radius: 30px;background-color: #0066ff;text-align: center;padding: 8px;color: white;flex-grow: 1;"
@@ -319,6 +324,12 @@
                                 </p>
                             </div>
 
+                        </div>
+                        <div style="flex-shrink: 0;align-items: center;margin-top: 8px;">
+                            <div style="flex-grow: 1;min-width: 8px;flex-shrink: 0;"></div>
+
+                            <div style="padding: 6px 16px;background-color: #0066ff;color: white;border-radius: 30px;font-size: 14px;align-items: center;justify-content: center;"
+                                class="clickEffect" v-on:click="zipAll">打包所有数据</div>
                         </div>
                     </div>
                 </div>
@@ -587,6 +598,8 @@
     }
 </script>
 <script>
+    window.localStorage.removeItem('AuthToken')
+    window.localStorage.removeItem('AuthTokenService')
     var loadTime = null
     var timeCombine = null
     var dayToCol = [0, 1, 2, 3, 4, 5, 6]
@@ -953,24 +966,42 @@
         if (files.length > 0) {
             let reader = new FileReader()
             reader.readAsText(files[0])
-            reader.onload = () => {
+            reader.onload = async () => {
                 let text = reader.result
                 try {
                     let coursesTable = JSON.parse(text)
                     let name = coursesTable.name
-                    
-                    coursesTable.courses.forEach(day => {
-                        day.forEach(c => {
-                            if (c.index != undefined) {
+
+                    if (loadTime == null) {
+                        let res = (await TimeTable.loadTimeTable(null))
+                        loadTime = res[0]
+                    }
+
+                    let max = -1;
+                    for (let day of coursesTable.courses) {
+                        for (let c of day) {
+                            if (c.index != undefined && c.s == undefined) {
+                                if (c.index > loadTime.getBlockLength()) {
+                                    max = Math.max(c.index, max)
+                                    continue;
+                                }
                                 c.s = loadTime.getStart(c.index)
                             }
-                            if (c.last != undefined) {
+                            if (c.index != undefined && c.last != undefined && c.l == undefined) {
+                                if (c.index + c.last - 1 > loadTime.getBlockLength()) {
+                                    max = Math.max(c.index + c.last - 1, max)
+                                    continue;
+                                }
                                 c.l = $utils.num2time_float(loadTime.getStartV(c.index + c.last - 1) - loadTime.getStartV(c.index) + loadTime.getLastV(c.index + c.last))
                             }
                             delete c.index
                             delete c.last
-                        })
-                    })
+                        }
+                    }
+                    if (max != -1) {
+                        alert(`错误：时间表节次数目不够，需要节次${max}，但时间表仅有${loadTime.getBlockLength()}节`)
+                        return;
+                    }
                     console.log(coursesTable)
 
                     storage.keys().then(keys => {
@@ -1344,15 +1375,18 @@
                                 if (keys.length == 0) {
                                     alert('没有课程表')
                                     this.courseName = null
+                                    this.closeTab = false
                                 } else {
                                     this.courseName = keys[0]
                                     set_storage.set('nCourse', this.courseName)
                                 }
+                                resolve()
                             })
                         } else {
                             this.courseName = data.nCourse
+                            resolve()
                         }
-                        resolve()
+
                     })
                 })
             },
@@ -1566,6 +1600,7 @@
                 document.getElementById('PlatformChooseDialog').close()
             },
             loadFromCloud(isApp, items) {
+                Toast.show('导入中...')
                 Hw_loadFromCloud(isApp, items, storage, () => {
                     alert('导入完成')
                 })
@@ -1573,6 +1608,7 @@
             uploadToCloud(isApp, items) {
                 checkCloud(isApp, res => {
                     if (res.code == 0) {
+                        Toast.show('上传中...')
                         let promises = []
                         items.forEach(item => {
                             if (item.checked) {
@@ -1860,6 +1896,33 @@
                     this.closeTab = state
                 }
                 window.localStorage.setItem('closeTab', this.closeTab)
+            },
+            async zipAll() {
+                let r = confirm('这会打包所有课表以及时间表等数据为一个压缩包，用于一课表快应用导入，是否继续')
+                if (!r) return;
+
+                let res = {
+                    course: {},
+                    set: {},
+                    timeTable: {}
+                }
+
+                let keys = await storage.keys()
+                for (let key of keys) {
+                    let data = await storage.get(key)
+                    let text = decode(data[key])
+                    res.course[key] = text
+                }
+
+                res.set = await set_storage.all()
+
+                let time_storage = utils.getStorage({
+                    priority: ['indexeddb'],
+                    name: 'Time'
+                })
+                res.timeTable = await time_storage.all()
+
+                saveAs(new File([JSON.stringify(res)], 'all.onecourse', { type: 'text/plain' }), 'all.onecourse');
             }
         }
     })

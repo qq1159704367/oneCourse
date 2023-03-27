@@ -32,6 +32,9 @@ const checkAccessTokenAndStorage = function (token, checkStorage, callback) {
             } else {
                 callback({ code: 1, error: '登录过期' })
             }
+        },
+        error() {
+            callback({ code: 1, error: '登录过期' })
         }
     })
 }
