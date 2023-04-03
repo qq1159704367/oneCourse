@@ -1,20 +1,24 @@
-const baseCh = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split('')
-
-const encrypt = str => {
-    str = str.split('')
-    let arr = str.map(ch => {
-        return baseCh[(baseCh.indexOf(ch) + 10) % baseCh.length]
-    })
-    return arr.join('')
+function getKey() {
+    const keyArray = new Uint8Array([226, 217, 164, 101, 207, 244, 15, 227, 156, 160, 10, 30, 40, 236, 177, 7])
+    return crypto.subtle.importKey("raw", keyArray, "AES-GCM", true, [
+        "encrypt",
+        "decrypt",
+    ]);
 }
 
-const decrypt = str => {
-    str = str.split('')
-    let arr = str.map(ch => {
-        return baseCh[(baseCh.indexOf(ch) - 10 + baseCh.length) % baseCh.length]
-    })
-    return arr.join('')
+async function decrypt(key, str) {
+    return new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, new Uint8Array(atob(str).split(',').map(v => parseInt(v)))))
 }
+
+async function encrypt(key, str) {
+    return btoa(new Uint8Array(await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv: iv },
+        key,
+        new TextEncoder().encode(str)
+    )));
+}
+
+const iv = new Uint8Array([212, 0, 218, 48, 230, 115, 127, 192, 236, 255, 165, 157])
 
 export const onRequest = async ({ request, next, env }) => {
     try {
@@ -30,6 +34,8 @@ export const onRequest = async ({ request, next, env }) => {
             })
         }
 
+        const key = await getKey()
+
         const param = await request.json()
         const params = new URLSearchParams();
         params.append('client_id', param.isApp ? '104588881' : '104777563')
@@ -40,7 +46,7 @@ export const onRequest = async ({ request, next, env }) => {
             params.append('redirect_uri', 'https://ffffffds.gitee.io/htmlcourse/LoginCheck')
         } else {
             params.append('grant_type', 'refresh_token');
-            params.append('refresh_token', decrypt(param.code))
+            params.append('refresh_token', await decrypt(key, param.code))
         }
         try {
             let response = await fetch('https://oauth-login.cloud.huawei.com/oauth2/v3/token', {
@@ -53,7 +59,10 @@ export const onRequest = async ({ request, next, env }) => {
             if (response.status == 200) {
                 let body = await response.json()
                 if (body['refresh_token']) {
-                    body['refresh_token'] = encrypt(body['refresh_token'])
+                    body['refresh_token'] = await encrypt(key, body['refresh_token'])
+                }
+                if (body['access_token']) {
+                    body['access_token'] = await encrypt(key, body['access_token'])
                 }
                 delete body['expires_in']
                 delete body['id_token']

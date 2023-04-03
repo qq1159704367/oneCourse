@@ -15,10 +15,11 @@ const base64Decode = function (str) {
 
 const checkAccessTokenAndStorage = function (token, checkStorage, callback) {
     $.ajax({
-        url: 'https://driveapis.cloud.huawei.com.cn/drive/v1/about?fields=*',
-        method: 'get',
-        headers: {
-            Authorization: 'Bearer ' + token
+        url: 'https://www.onecourse.top/about',
+        method: 'post',
+        contentType: 'application/json',
+        data: {
+            token
         },
         success(data, status) {
             if (status == 'success') {
@@ -166,18 +167,16 @@ const Hw_uploadToCloud = function (isApp, items, callback) {
                         },
                         parentFolder: ["applicationData"]
                     }
-                    let boundary = randomString(10)
-                    let encodeData = base64Encode(decode(item.data))
-                    let sendData = `--${boundary}\r\nContent-Type:application/json\r\n\r\n${JSON.stringify(o)}\r\n--${boundary}\r\nContent-Type:application/octet-stream\r\n\r\n${encodeData}\r\n--${boundary}--`
-                    let url = `https://driveapis.cloud.huawei.com.cn/upload/drive/v1/files/${nameToId[item.name] ? nameToId[item.name] : ''}?uploadType=multipart`
                     $.ajax({
-                        url: url,
-                        contentType: 'multipart/related;boundary=' + boundary,
-                        method: 'put',
-                        headers: {
-                            'Authorization': 'Bearer ' + token
+                        url: 'https://www.onecourse.top/upload',
+                        contentType: 'application/json',
+                        method: 'post',
+                        data: {
+                            token,
+                            id: nameToId[item.name] ? nameToId[item.name] : '',
+                            base64Data: base64Encode(decode(item.data)),
+                            option: o
                         },
-                        data: sendData,
                         success(data, status) {
                             resolve(status == 'success' ? 1 : 0)
                         },
@@ -205,11 +204,11 @@ const Hw_uploadToCloud = function (isApp, items, callback) {
 const Hw_getFilesFromCloud = function (isApp, prefix, callback) {
     let token = isApp ? window.localStorage.getItem('AuthToken') : window.localStorage.getItem('AuthTokenService')
     $.ajax({
-        url: 'https://driveapis.cloud.huawei.com.cn/drive/v1/files?fields=*&containers=applicationData',
+        url: 'https://www.onecourse.top/files',
         contentType: 'application/json',
-        method: 'get',
-        headers: {
-            'Authorization': 'Bearer ' + token
+        method: 'post',
+        data: {
+            token
         },
         success(data, status) {
             if (status == 'success') {
@@ -236,11 +235,12 @@ const Hw_getFilesFromCloud = function (isApp, prefix, callback) {
 const Hw_loadFile = function (isApp, link, callback) {
     let token = isApp ? window.localStorage.getItem('AuthToken') : window.localStorage.getItem('AuthTokenService')
     $.ajax({
-        url: link,
+        url: 'https://www.onecourse.top/download',
         contentType: 'application/json',
-        method: 'get',
-        headers: {
-            'Authorization': 'Bearer ' + token
+        method: 'post',
+        data: {
+            token,
+            id: link
         },
         success(data, status) {
             callback({
