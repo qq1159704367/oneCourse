@@ -464,9 +464,14 @@
                     v-on:click="closeQrcodeDialog">关闭</div>
             </div>
         </dialog>
+
+        <div style="display: flex;align-items: center;justify-content: center;position: absolute;width: 100%;height: 100%;z-index: 100;"
+            v-if="isLoading">
+            <svg width="52" height="52" class="loading">
+                <path d="M24,2 a24,24 0 0,1 26,26" stroke-linecap="round" fill="none" stroke="black" stroke-width="4" />
+            </svg>
+        </div>
     </div>
-
-
 </body>
 <script>
     let tc = window.localStorage.getItem('textColor')
@@ -1113,7 +1118,9 @@
             closeTab: true,
             nowMethod: null,
 
-            backgroundImg: null
+            backgroundImg: null,
+
+            isLoading: false
         },
         async created() {
             $this = this
@@ -1165,6 +1172,9 @@
             this.$watch('pages', update)
         },
         methods: {
+            loading(loading) {
+                $this.isLoading = loading
+            },
             async loadSetting() {
                 let _showWeekend = (await set_storage.get('showWeekend')).showWeekend
                 showWeekend = _showWeekend != undefined ? _showWeekend : true
@@ -1566,7 +1576,7 @@
                 platFormIsApp = isApp
                 if (this.platformNext === 0) {
                     this.itemCheckboxDialog_title = '请选择要下载的课表'
-                    Toast.show('读取云端课程表中...')
+                    this.loading(true)
                     checkCloud(isApp, res => {
                         if (res.code == 0) {
                             console.log('success')
@@ -1578,6 +1588,7 @@
                                         checked: false
                                     }
                                 })
+                                this.loading(false)
                                 document.getElementById('ItemCheckboxDialog').showModal()
                             })
                         } else {
@@ -1602,8 +1613,10 @@
             },
             loadFromCloud(isApp, items) {
                 Toast.show('导入中...')
+                this.loading(true)
                 Hw_loadFromCloud(isApp, items, storage, () => {
                     alert('导入完成')
+                    this.loading(false)
                 })
             },
             uploadToCloud(isApp, items) {
@@ -2031,6 +2044,19 @@
 
     .weekdayLine:hover {
         opacity: 1;
+    }
+
+    .loading{
+        animation: roling 800ms linear infinite;
+        /* transform: rotate(30deg); */
+    }
+    @keyframes roling {
+        0% {
+            transform: rotate(0deg);
+        }
+        100% {
+            transform: rotate(360deg);
+        }
     }
 </style>
 

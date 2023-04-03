@@ -47,7 +47,7 @@ export const onRequest = async ({ request, next, env }) => {
                     'Content-Type': 'multipart/related;boundary=' + boundary,
                     'Authorization': 'Bearer ' + await decrypt(key, param.token)
                 },
-                method: param.id == '' ? 'post' : 'put',
+                method: 'put',
                 body: sendData
             })
             return response
