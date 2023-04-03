@@ -32,7 +32,7 @@ export const onRequest = async ({ request, next, env }) => {
         try {
             let response = await fetch('https://driveapis.cloud.huawei.com.cn/drive/v1/files?fields=*&containers=applicationData', {
                 headers: {
-                    'Authorization': 'Bearer ' + decrypt(key, param.token)
+                    'Authorization': 'Bearer ' + await decrypt(key, param.token)
                 },
                 method: 'get'
             })

@@ -45,7 +45,7 @@ export const onRequest = async ({ request, next, env }) => {
             let response = await fetch(`https://driveapis.cloud.huawei.com.cn/upload/drive/v1/files/${param.id}?uploadType=multipart`, {
                 headers: {
                     'Content-Type': 'multipart/related;boundary=' + boundary,
-                    'Authorization': 'Bearer ' + decrypt(key, param.token)
+                    'Authorization': 'Bearer ' + await decrypt(key, param.token)
                 },
                 method: param.id == '' ? 'post' : 'put',
                 body: sendData
