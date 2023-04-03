@@ -1566,6 +1566,7 @@
                 platFormIsApp = isApp
                 if (this.platformNext === 0) {
                     this.itemCheckboxDialog_title = '请选择要下载的课表'
+                    Toast.show('读取云端课程表中...')
                     checkCloud(isApp, res => {
                         if (res.code == 0) {
                             console.log('success')
@@ -1573,7 +1574,7 @@
                                 this.itemCheckboxDialog_items = items.map(item => {
                                     return {
                                         name: item.fileName.split('-')[1],
-                                        link: item.contentDownloadLink,
+                                        link: item.id,
                                         checked: false
                                     }
                                 })

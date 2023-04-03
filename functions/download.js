@@ -30,7 +30,7 @@ export const onRequest = async ({ request, next, env }) => {
 
         const param = await request.json()
         try {
-            let response = await fetch('https://driveapis.cloud.huawei.com.cn/upload/drive/v1/files/' + param.id, {
+            let response = await fetch('https://driveapis.cloud.huawei.com.cn/upload/drive/v1/files/' + param.id + '?form=content', {
                 headers: {
                     'Authorization': 'Bearer ' + await decrypt(key, param.token)
                 },
