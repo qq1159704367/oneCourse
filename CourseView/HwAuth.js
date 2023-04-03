@@ -18,9 +18,9 @@ const checkAccessTokenAndStorage = function (token, checkStorage, callback) {
         url: 'https://www.onecourse.top/about',
         method: 'post',
         contentType: 'application/json',
-        data: {
+        data: JSON.stringify({
             token
-        },
+        }),
         success(data, status) {
             if (status == 'success') {
                 let all = data.storageQuota.userCapacity
@@ -171,12 +171,12 @@ const Hw_uploadToCloud = function (isApp, items, callback) {
                         url: 'https://www.onecourse.top/upload',
                         contentType: 'application/json',
                         method: 'post',
-                        data: {
+                        data: JSON.stringify({
                             token,
                             id: nameToId[item.name] ? nameToId[item.name] : '',
                             base64Data: base64Encode(decode(item.data)),
                             option: o
-                        },
+                        }),
                         success(data, status) {
                             resolve(status == 'success' ? 1 : 0)
                         },
@@ -207,9 +207,9 @@ const Hw_getFilesFromCloud = function (isApp, prefix, callback) {
         url: 'https://www.onecourse.top/files',
         contentType: 'application/json',
         method: 'post',
-        data: {
+        data: JSON.stringify({
             token
-        },
+        }),
         success(data, status) {
             if (status == 'success') {
                 console.log(JSON.stringify(data))
@@ -238,10 +238,10 @@ const Hw_loadFile = function (isApp, link, callback) {
         url: 'https://www.onecourse.top/download',
         contentType: 'application/json',
         method: 'post',
-        data: {
+        data: JSON.stringify({
             token,
             id: link
-        },
+        }),
         success(data, status) {
             callback({
                 code: status == 'success' ? 0 : 1,
@@ -261,7 +261,7 @@ const Hw_loadFromCloud = function (isApp, items, storage, callback) {
     items.forEach(item => {
         if (!item.checked) return;
         promises.push(new Promise(resolve => {
-            Hw_loadFile(isApp, item.link, ({ code, data }) => {
+            Hw_loadFile(isApp, item.id, ({ code, data }) => {
                 if (code == 0) {
                     let encodeCourse = btoa(pako.gzip(encodeURIComponent(base64Decode(data)), { to: 'string' }))
                     storage.set(item.name, encodeCourse)
