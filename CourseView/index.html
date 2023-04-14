@@ -1637,12 +1637,14 @@
                             }
                         })
                         Promise.all(promises).then(() => {
+                            this.loading(true)
                             Hw_uploadToCloud(isApp, items, (success) => {
                                 if (success) {
                                     alert('上传完成')
                                 } else {
                                     alert('部分课表上传失败')
                                 }
+                                this.loading(false)
                             })
                         })
                     } else {
