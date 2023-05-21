@@ -50,10 +50,15 @@ export const onRequest = async ({ request, next, env }) => {
                 method: 'put',
                 body: sendData
             })
-            let r = response.clone()
-            r.headers.set('Access-Control-Allow-Origin', 'https://ffffffds.gitee.io')
-            r.headers.set('Access-Control-Allow-Methods', 'POST,OPTIONS')
-            r.headers.set('Access-Control-Allow-Headers', 'Content-Type')
+            let r = new Response(response.body, {
+                status: 200,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Access-Control-Allow-Origin': 'https://ffffffds.gitee.io',
+                    'Access-Control-Allow-Methods': 'POST,OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                }
+            })
             return r
         } catch (e) {
             return new Response(e, {
