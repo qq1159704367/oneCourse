@@ -36,6 +36,9 @@ export const onRequest = async ({ request, next, env }) => {
                 },
                 method: 'get'
             })
+            response.headers.set('Access-Control-Allow-Origin', 'https://ffffffds.gitee.io')
+            response.headers.set('Access-Control-Allow-Methods', 'POST,OPTIONS')
+            response.headers.set('Access-Control-Allow-Headers', 'Content-Type')
             return response
         } catch (e) {
             return new Response(e, {
