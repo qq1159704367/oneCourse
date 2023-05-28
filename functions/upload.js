@@ -42,12 +42,12 @@ export const onRequest = async ({ request, next, env }) => {
         try {
             let boundary = randomString(10)
             let sendData = `--${boundary}\r\nContent-Type:application/json\r\n\r\n${JSON.stringify(param.option)}\r\n--${boundary}\r\nContent-Type:application/octet-stream\r\n\r\n${param.base64Data}\r\n--${boundary}--`
-            let response = await fetch(`https://driveapis.cloud.huawei.com.cn/upload/drive/v1/files/${param.id}?uploadType=multipart`, {
+            let response = await fetch(`https://driveapis.cloud.huawei.com.cn/upload/drive/v1/files${param.id ? ('/' + param.id) : ''}?uploadType=multipart`, {
                 headers: {
                     'Content-Type': 'multipart/related;boundary=' + boundary,
                     'Authorization': 'Bearer ' + await decrypt(key, param.token)
                 },
-                method: 'put',
+                method: param.id ? 'put' : 'post',
                 body: sendData
             })
             let r = new Response(response.body, {
